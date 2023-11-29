@@ -25,7 +25,12 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@cyan/indie-card/web-db-tables": [
+        "indie-card/web-db-tables/src/index.ts"
+      ],
+      "@cyan/pulumi": ["plugins/pulumi/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

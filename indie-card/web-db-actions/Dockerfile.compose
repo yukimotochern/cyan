@@ -1,0 +1,10 @@
+ARG BASE_IMAGE=node:18.18
+FROM $BASE_IMAGE
+
+
+
+WORKDIR /app
+
+RUN corepack enable
+
+RUN pnpm config set store-dir /pnpm/.pnpm-store

@@ -1,0 +1,9 @@
+{
+  "executors": {
+    "up": {
+      "implementation": "./src/executors/up/executor",
+      "schema": "./src/executors/up/schema.json",
+      "description": "This executor mirrors and extends the funcitonality of pulumi up command."
+    }
+  }
+}

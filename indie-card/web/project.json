@@ -7,7 +7,7 @@
     "build": {
       "executor": "@nx/next:build",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
+      "defaultConfiguration": "development",
       "options": {
         "outputPath": "dist/indie-card/web"
       },
@@ -15,7 +15,9 @@
         "development": {
           "outputPath": "indie-card/web"
         },
-        "production": {}
+        "production": {
+          "generateLockfile": true
+        }
       }
     },
     "serve": {
@@ -46,7 +48,8 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "indie-card/web/jest.config.ts"
+        "jestConfig": "indie-card/web/jest.config.ts",
+        "passWithNoTests": true
       }
     },
     "lint": {

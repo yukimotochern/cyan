@@ -1,18 +1,22 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
+import { SessionProvider } from 'next-auth/react';
 import './global.css';
+import { api } from '../utils/api';
 
-function CustomApp({ Component, pageProps }: AppProps) {
+function IndieCardGameApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
         <title>Welcome to web!</title>
       </Head>
       <main className="app">
-        <Component {...pageProps} />
+        <SessionProvider session={pageProps.session}>
+          <Component {...pageProps} />
+        </SessionProvider>
       </main>
     </>
   );
 }
 
-export default CustomApp;
+export default api.withTRPC(IndieCardGameApp);

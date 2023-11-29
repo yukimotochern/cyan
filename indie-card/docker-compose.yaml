@@ -1,0 +1,57 @@
+version: "3.9"
+name: indie-card
+services:
+  service:
+    build:
+      context: .
+      dockerfile: "indie-card/web/Dockerfile.compose"
+    working_dir: /app
+    env_file:
+      - "indie-card/web/.env.docker-compose"
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+      - pnpm_store:/pnpm
+  web-db:
+    image: "postgres:16"
+    restart: always
+    env_file:
+      - "indie-card/web/.env.docker-compose"
+    volumes:
+      - "web-db:/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"
+  web:
+    build:
+      context: .
+      dockerfile: "indie-card/web/Dockerfile.compose"
+    command: "pnpm nx run indie-card-web:serve:development"
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+      - pnpm_store:/pnpm/store
+    env_file:
+      - "./indie-card/web/.env.docker-compose"
+    depends_on:
+      - web-db
+      - web-db-push
+  web-db-push:
+    build:
+      context: .
+      dockerfile: "indie-card/web-db-actions/Dockerfile.compose"
+    command: "pnpm nx db-push indie-card-web-db-actions"
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+      - pnpm_store:/pnpm/store
+    env_file:
+      - "./indie-card/web-db-actions/.env.docker-compose"
+    depends_on:
+      - web-db
+
+volumes:
+  web-db:
+  node_modules:
+  pnpm_store:

@@ -1,0 +1,59 @@
+{
+  "name": "pulumi",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "plugins/pulumi/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/plugins/pulumi",
+        "main": "plugins/pulumi/src/index.ts",
+        "tsConfig": "plugins/pulumi/tsconfig.lib.json",
+        "assets": [
+          "plugins/pulumi/*.md",
+          {
+            "input": "./plugins/pulumi/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./plugins/pulumi/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./plugins/pulumi",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./plugins/pulumi",
+            "glob": "executors.json",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "plugins/pulumi/**/*.ts",
+          "plugins/pulumi/package.json",
+          "plugins/pulumi/executors.json"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "plugins/pulumi/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,62 @@
+{
+  "name": "indie-card-infra",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "indie-card/infra/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/indie-card/infra",
+        "main": "indie-card/infra/src/main.ts",
+        "tsConfig": "indie-card/infra/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "indie-card/infra/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generateLockfile": true
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "indie-card-infra:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "indie-card-infra:build:development"
+        },
+        "production": {
+          "buildTarget": "indie-card-infra:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["indie-card/infra/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "indie-card/infra/jest.config.ts"
+      }
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f indie-card/infra/Dockerfile . -t indie-card-infra"
+    }
+  },
+  "tags": []
+}
