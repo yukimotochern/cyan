@@ -1,5 +1,5 @@
 ARG BASE_IMAGE=node:18.18
-FROM --platform=linux/amd64 ${BASE_IMAGE} AS Build
+FROM ${BASE_IMAGE} AS Build
 
 WORKDIR /app
 
@@ -17,11 +17,11 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm nx run web-db-actions:build:production
+RUN pnpm nx run web-db:build:production
 
-FROM  --platform=linux/amd64 ${BASE_IMAGE}
-COPY --from=Build /app/dist/web-db-actions /app/dist/web-db-actions
+FROM ${BASE_IMAGE}
+COPY --from=Build /app/dist/web-db /app/dist/web-db
 
-WORKDIR /app/dist/web-db-actions
+WORKDIR /app/dist/web-db
 
 CMD [ "node", "main.js" ]

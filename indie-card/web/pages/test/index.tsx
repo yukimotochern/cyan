@@ -4,10 +4,11 @@ import { api } from '../../utils/api';
 
 export default function Index() {
   const { data: session } = useSession();
+  console.log('ddd', process.env.NEXT_PUBLIC_NEXTAUTH_URL);
 
   const { data, isFetched, refetch } = api.exampleRouter.getTestData.useQuery(
     undefined,
-    { trpc: { ssr: false } }
+    { trpc: { ssr: false } },
   );
   const createTestData = api.exampleRouter.createTestData.useMutation();
   const [text, setText] = useState('');

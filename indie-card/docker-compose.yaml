@@ -16,7 +16,7 @@ services:
     image: "postgres:16"
     restart: always
     env_file:
-      - "indie-card/web/.env.docker-compose"
+      - "indie-card/web-db/.env.docker-compose"
     volumes:
       - "web-db:/var/lib/postgresql/data"
     ports:
@@ -40,14 +40,14 @@ services:
   web-db-push:
     build:
       context: .
-      dockerfile: "indie-card/web-db-actions/Dockerfile.compose"
-    command: "pnpm nx db-push indie-card-web-db-actions"
+      dockerfile: "indie-card/web-db/Dockerfile.compose"
+    command: "pnpm nx db-push indie-card-web-db"
     volumes:
       - ./:/app
       - node_modules:/app/node_modules
       - pnpm_store:/pnpm/store
     env_file:
-      - "./indie-card/web-db-actions/.env.docker-compose"
+      - "./indie-card/web-db/.env.docker-compose"
     depends_on:
       - web-db
 

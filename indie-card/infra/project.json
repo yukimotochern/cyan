@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "indie-card/infra/src",
   "projectType": "application",
+  "implicitDependencies": ["indie-card-web", "indie-card-web-db"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
@@ -12,7 +13,7 @@
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/indie-card/infra",
-        "main": "indie-card/infra/src/main.ts",
+        "main": "indie-card/infra/src/index.ts",
         "tsConfig": "indie-card/infra/tsconfig.app.json",
         "isolatedConfig": true,
         "webpackConfig": "indie-card/infra/webpack.config.js"
@@ -20,7 +21,7 @@
       "configurations": {
         "development": {},
         "production": {
-          "generateLockfile": true
+          "generatePackageJson": true
         }
       }
     },

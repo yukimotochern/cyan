@@ -1,10 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
-    "types": ["node"]
+    "outDir": "../../dist",
+    "module": "ES2022",
+    "types": ["node"],
+    "composite": true
   },
+  "references": [
+    {
+      "path": "../web-db-tables/tsconfig.lib.json"
+    }
+  ],
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "index.ts"]
 }
