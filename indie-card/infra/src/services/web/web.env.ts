@@ -1,60 +1,84 @@
+import {
+  parseEnv,
+  getDopplerEnv,
+  EnvDef,
+  mapEnvToK8sEnv,
+  nonEmptyString,
+} from '../../env/helpers.js';
+import { stack, appName, env } from '../../env/env.js';
 import { z } from 'zod';
-import { stack, appName, parseEnv, getDopplerEnv, EnvDef } from '../../env/env';
 
 export const serviceName = 'web';
+
+export const nxProjectName = `${appName}-${serviceName}`;
 
 const rawEnv = await getDopplerEnv({
   appName,
   serviceName,
   envName: stack,
+  dopplerToken: env.DOPPLER_TOKEN,
 });
 
-const nonEmptyString = z.string().min(1);
-
 const envDef = {
+  // Infra
+  VERSION: {
+    schema: z.string(),
+    isSecret: false,
+    steps: ['infra'],
+  },
   // Server
-  RUN_TIME_PORT: {
+  PORT: {
     schema: nonEmptyString,
     isSecret: false,
+    steps: ['runTime'],
   },
   // Database
-  RUN_TIME_DATABASE_PORT: {
+  DATABASE_PORT: {
     schema: nonEmptyString,
     isSecret: false,
+    steps: ['runTime'],
   },
-  RUN_TIME_DATABASE_USER: {
+  DATABASE_USER: {
     schema: nonEmptyString,
     isSecret: true,
+    steps: ['runTime'],
   },
-  RUN_TIME_DATABASE_DB_NAME: {
+  DATABASE_DB_NAME: {
     schema: nonEmptyString,
     isSecret: false,
+    steps: ['runTime'],
   },
-  RUN_TIME_DATABASE_PASSWORD: {
+  DATABASE_PASSWORD: {
     schema: nonEmptyString,
     isSecret: true,
+    steps: ['runTime'],
   },
   // Auth
-  RUN_TIME_NEXTAUTH_SECRET: {
+  NEXTAUTH_SECRET: {
     schema: nonEmptyString,
     isSecret: true,
+    steps: ['runTime'],
   },
-  RUN_TIME_BACKEND_URL: {
+  BACKEND_URL: {
     schema: nonEmptyString,
     isSecret: false,
+    steps: ['runTime'],
   },
-  RUN_TIME_NEXTAUTH_URL: {
+  NEXTAUTH_URL: {
     schema: nonEmptyString,
     isSecret: false,
+    steps: ['runTime'],
   },
   // Google
-  RUN_TIME_GOOGLE_OAUTH_CLIENT_ID: {
+  GOOGLE_OAUTH_CLIENT_ID: {
     schema: nonEmptyString,
     isSecret: true,
+    steps: ['runTime'],
   },
-  RUN_TIME_GOOGLE_OAUTH_CLIENT_SECRET: {
+  GOOGLE_OAUTH_CLIENT_SECRET: {
     schema: nonEmptyString,
     isSecret: true,
+    steps: ['runTime'],
   },
 } satisfies EnvDef;
 
@@ -63,10 +87,22 @@ export const webEnv = parseEnv({
   def: envDef,
 });
 
-export const webRunTimeEnv = parseEnv({
+export const version = webEnv.VERSION !== '' ? webEnv.VERSION : '';
+
+export const webRunTimeK8sEnv = mapEnvToK8sEnv(
+  parseEnv({
+    data: rawEnv,
+    def: envDef,
+    filter: {
+      steps: ['runTime'],
+    },
+  }),
+);
+
+export const webBuildTimeEnv = parseEnv({
   data: rawEnv,
   def: envDef,
   filter: {
-    step: 'runTime',
+    steps: ['buildTime'],
   },
 });

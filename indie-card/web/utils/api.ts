@@ -7,8 +7,8 @@ import { type AppRouter } from '../server/root';
 
 export const getBaseUrl = () => {
   if (typeof window !== 'undefined') return ''; // browser should use relative url
-  if (process.env.RUN_TIME_BACKEND_URL) return process.env.RUN_TIME_BACKEND_URL; // SSR should use specified url
-  return `http://localhost:${process.env.RUN_TIME_PORT ?? 4200}`; // dev SSR should use localhost
+  if (process.env.BACKEND_URL) return process.env.BACKEND_URL; // SSR should use specified url
+  return `http://localhost:${process.env.PORT ?? 4200}`; // dev SSR should use localhost
 };
 
 /**

@@ -2,20 +2,20 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import {
-  RUN_TIME_ACTION,
-  RUN_TIME_DATABASE_DB_NAME,
-  RUN_TIME_DATABASE_HOST,
-  RUN_TIME_DATABASE_PASSWORD,
-  RUN_TIME_DATABASE_USER,
-  RUN_TIME_DATABASE_PORT,
+  ACTION,
+  DATABASE_DB_NAME,
+  DATABASE_HOST,
+  DATABASE_PASSWORD,
+  DATABASE_USER,
+  DATABASE_PORT,
 } from './env';
 import path from 'path';
 
-export const dbUrl = `postgresql://${RUN_TIME_DATABASE_USER}:${RUN_TIME_DATABASE_PASSWORD}@${RUN_TIME_DATABASE_HOST}:${RUN_TIME_DATABASE_PORT}/${RUN_TIME_DATABASE_DB_NAME}`;
+export const dbUrl = `postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DB_NAME}`;
 const connection = postgres(dbUrl, { max: 1 });
 const orm = drizzle(connection);
 
-if (RUN_TIME_ACTION === 'migration') {
+if (ACTION === 'migration') {
   await migrate(orm, {
     migrationsFolder: path.join(__dirname, 'migrations'),
   });

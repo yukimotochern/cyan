@@ -4,6 +4,20 @@
   "title": "Pulumi up executor",
   "description": "",
   "type": "object",
-  "properties": {},
+  "properties": {
+    "envVars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "value": { "type": "string" }
+        }
+      }
+    },
+    "stack": {
+      "type": "string"
+    }
+  },
   "required": []
 }

@@ -1,46 +1,76 @@
 import { z } from 'zod';
-import { stack, appName, parseEnv, getDopplerEnv, EnvDef } from '../../env/env';
+import {
+  parseEnv,
+  getDopplerEnv,
+  EnvDef,
+  mapEnvToK8sEnv,
+  nonEmptyString,
+} from '../../env/helpers.js';
+import { stack, appName, env } from '../../env/env.js';
 
 export const serviceName = 'web-db';
+
+export const nxProjectName = `${appName}-${serviceName}`;
 
 const rawEnv = await getDopplerEnv({
   appName,
   serviceName,
   envName: stack,
+  dopplerToken: env.DOPPLER_TOKEN,
 });
-
-const nonEmptyString = z.string().min(1);
 
 const envDef = {
   // Infra
-  INFRA_POSTGRES_DB: {
+  VERSION: {
+    schema: z.string(),
+    isSecret: false,
+    steps: ['infra'],
+  },
+  POSTGRES_DB: {
     schema: nonEmptyString,
     isSecret: false,
+    steps: ['infra'],
   },
-  INFRA_POSTGRES_USER: {
+  POSTGRES_USER: {
     schema: nonEmptyString,
     isSecret: true,
+    steps: ['infra'],
   },
-  INFRA_POSTGRES_PASSWORD: {
+  POSTGRES_PASSWORD: {
     schema: nonEmptyString,
     isSecret: true,
+    steps: ['infra'],
   },
   // Run time
-  RUN_TIME_ACTION: {
+  ACTION: {
     schema: z.union([
       z.literal('migration'),
       z.literal('push'),
       z.literal('none'),
     ]),
     isSecret: false,
+    steps: ['runTime'],
   },
-  RUN_TIME_DATABASE_DB_NAME: {
+  DATABASE_DB_NAME: {
     schema: nonEmptyString,
     isSecret: false,
+    steps: ['runTime'],
   },
-  RUN_TIME_DATABASE_PASSWORD: { schema: nonEmptyString, isSecret: true },
-  RUN_TIME_DATABASE_USER: { schema: nonEmptyString, isSecret: true },
-  RUN_TIME_DATABASE_PORT: { schema: nonEmptyString, isSecret: false },
+  DATABASE_PASSWORD: {
+    schema: nonEmptyString,
+    isSecret: true,
+    steps: ['runTime'],
+  },
+  DATABASE_USER: {
+    schema: nonEmptyString,
+    isSecret: true,
+    steps: ['runTime'],
+  },
+  DATABASE_PORT: {
+    schema: nonEmptyString,
+    isSecret: false,
+    steps: ['runTime'],
+  },
 } satisfies EnvDef;
 
 export const webDbEnv = parseEnv({
@@ -48,18 +78,22 @@ export const webDbEnv = parseEnv({
   def: envDef,
 });
 
-export const webDbRunTimeEnv = parseEnv({
-  data: rawEnv,
-  def: envDef,
-  filter: {
-    step: 'runTime',
-  },
-});
+export const webDbRunTimeK8sEnv = mapEnvToK8sEnv(
+  parseEnv({
+    data: rawEnv,
+    def: envDef,
+    filter: {
+      steps: ['runTime'],
+    },
+  }),
+);
 
-export const webDbBuildTimeEnv = parseEnv({
-  data: rawEnv,
-  def: envDef,
-  filter: {
-    step: 'buildTime',
-  },
-});
+export const webDbBuildTimeK8sEnv = mapEnvToK8sEnv(
+  parseEnv({
+    data: rawEnv,
+    def: envDef,
+    filter: {
+      steps: ['buildTime'],
+    },
+  }),
+);

@@ -1,24 +1,27 @@
 import * as k8s from '@pulumi/kubernetes';
 import * as pulumi from '@pulumi/pulumi';
 import * as docker from '@pulumi/docker';
-import { appName } from '../../env/env';
-import { generalEnv } from '../../env/general.env';
-import { serviceName, webEnv, webRunTimeEnv } from './web.env';
+import { appName, stack } from '../../env/env.js';
+import { env, isMinikube } from '../../env/env.js';
+import {
+  serviceName,
+  webEnv,
+  webRunTimeK8sEnv,
+  webBuildTimeEnv,
+  version,
+} from './web.env.js';
 
-const { INFRA_GITHUB_REGISTRY, INFRA_GITHUB_USERNAME, INFRA_GITHUB_SECRET } =
-  generalEnv;
+const { GITHUB_REGISTRY, GITHUB_USERNAME, GITHUB_SECRET } = env;
 
-const { RUN_TIME_PORT } = webEnv;
+const { PORT } = webEnv;
 
 export const setupWebApp = ({
-  version,
   kubProvider,
   githubRegistrySecret,
   webDbCluster,
   webDbServiceName,
   webDbJob,
 }: {
-  version: string;
   kubProvider?: pulumi.ProviderResource;
   githubRegistrySecret: k8s.core.v1.Secret;
   webDbCluster: k8s.apiextensions.CustomResource;
@@ -29,20 +32,21 @@ export const setupWebApp = ({
   const webLabel = { app: webPrefix };
 
   /* Web Image */
-  const webImageRegistry = `${INFRA_GITHUB_REGISTRY}/${serviceName}`;
+  const webImageRegistry = `${GITHUB_REGISTRY}/${webPrefix}-${stack}`;
   const webImageName = `${webImageRegistry}:${version}`;
   const webImage = new docker.Image(`${webPrefix}-image`, {
     build: {
       args: {
-        platform: 'linux/amd64',
+        ...(!isMinikube && { platform: 'linux/amd64' }),
+        ...webBuildTimeEnv,
       },
-      context: '../../../../..',
-      dockerfile: '../../../../web/Dockerfile',
+      context: '../..',
+      dockerfile: '../web/Dockerfile',
     },
     imageName: webImageName,
     registry: {
-      username: INFRA_GITHUB_USERNAME,
-      password: INFRA_GITHUB_SECRET,
+      username: GITHUB_USERNAME,
+      password: GITHUB_SECRET,
       server: webImageRegistry,
     },
   });
@@ -68,16 +72,13 @@ export const setupWebApp = ({
                 name: `${webPrefix}-container`,
                 ports: [
                   {
-                    containerPort: parseInt(RUN_TIME_PORT),
+                    containerPort: parseInt(PORT),
                   },
                 ],
                 env: [
-                  ...Object.entries(webRunTimeEnv).map(([key, value]) => ({
-                    name: key,
-                    value,
-                  })),
+                  ...webRunTimeK8sEnv,
                   {
-                    name: 'RUN_TIME_DATABASE_HOST',
+                    name: 'DATABASE_HOST',
                     value: webDbServiceName,
                   },
                 ],
@@ -103,7 +104,7 @@ export const setupWebApp = ({
       },
       spec: {
         type: 'ClusterIP',
-        ports: [{ port: 80, targetPort: RUN_TIME_PORT }],
+        ports: [{ port: 80, targetPort: parseInt(PORT) }],
         selector: webLabel,
       },
     },

@@ -1,6 +1,6 @@
 import * as k8s from '@pulumi/kubernetes';
 import * as pulumi from '@pulumi/pulumi';
-import { isDnsReady, isCertificateReady } from '../../env/general.env';
+import { isDnsReady, isCertificateReady } from '../../env/env.js';
 
 export const setupCertManger = ({
   kubProvider,

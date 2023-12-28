@@ -1,5 +1,5 @@
 ARG BASE_IMAGE=node:18.18
-FROM --platform=linux/amd64 ${BASE_IMAGE} AS Build
+FROM ${BASE_IMAGE} AS Build
 
 WORKDIR /app
 
@@ -17,17 +17,17 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm nx run web:build:production
+RUN pnpm nx run indie-card-web:build:production --verbose
 
-FROM --platform=linux/amd64 ${BASE_IMAGE}
-COPY --from=Build /app/dist/web /app/dist/web
+FROM ${BASE_IMAGE}
+COPY --from=Build /app/dist/indie-card/web /app/dist/indie-card/web
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
 RUN corepack enable
 
-WORKDIR /app/dist/web
+WORKDIR /app/dist/indie-card/web
 
 RUN pnpm install --frozen-lockfile
 

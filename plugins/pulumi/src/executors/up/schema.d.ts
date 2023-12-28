@@ -1,1 +1,4 @@
-export interface UpExecutorSchema {} // eslint-disable-line
+export interface UpExecutorSchema {
+  envVars?: { name: string; value: string }[];
+  stack?: string;
+}

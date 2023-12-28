@@ -17,11 +17,11 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm nx run web-db:build:production
+RUN pnpm nx run indie-card-web-db:build:production --verbose
 
 FROM ${BASE_IMAGE}
-COPY --from=Build /app/dist/web-db /app/dist/web-db
+COPY --from=Build /app/dist/indie-card/web-db /app/dist/indie-card/web-db
 
-WORKDIR /app/dist/web-db
+WORKDIR /app/dist/indie-card/web-db
 
 CMD [ "node", "main.js" ]

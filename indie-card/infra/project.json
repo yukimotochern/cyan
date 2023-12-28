@@ -57,6 +57,21 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f indie-card/infra/Dockerfile . -t indie-card-infra"
+    },
+    "up": {
+      "executor": "@cyan/pulumi:up",
+      "options": {},
+      "configurations": {
+        "mini": {
+          "stack": "mini"
+        },
+        "dev": {
+          "stack": "dev"
+        },
+        "prod": {
+          "stack": "prod"
+        }
+      }
     }
   },
   "tags": []

@@ -1,10 +1,9 @@
 import * as k8s from '@pulumi/kubernetes';
 import * as pulumi from '@pulumi/pulumi';
-import { isMinikube, isDnsReady, generalEnv } from '../../env/general.env';
-import { stack } from '../../env/env';
+import { isMinikube, isDnsReady, env } from '../../env/env.js';
+import { stack } from '../../env/env.js';
 
-const { INFRA_LETS_ENCRYPT_EMAIL, INFRA_INDIE_CARD_WEB_HOST_DOMAIN } =
-  generalEnv;
+const { LETS_ENCRYPT_EMAIL, INDIE_CARD_WEB_HOST_DOMAIN } = env;
 
 export const setupNetwork = ({
   certManager,
@@ -33,7 +32,7 @@ export const setupNetwork = ({
           },
           spec: {
             acme: {
-              email: INFRA_LETS_ENCRYPT_EMAIL,
+              email: LETS_ENCRYPT_EMAIL,
               server: 'https://acme-v02.api.letsencrypt.org/directory',
               privateKeySecretRef: {
                 name: issuerName,
@@ -104,14 +103,14 @@ export const setupNetwork = ({
           ...(isDnsReady && {
             tls: [
               {
-                hosts: [INFRA_INDIE_CARD_WEB_HOST_DOMAIN],
+                hosts: [INDIE_CARD_WEB_HOST_DOMAIN],
                 secretName: 'web-tls-secret',
               },
             ],
           }),
           rules: [
             {
-              host: INFRA_INDIE_CARD_WEB_HOST_DOMAIN,
+              host: INDIE_CARD_WEB_HOST_DOMAIN,
               http: {
                 paths: [
                   {

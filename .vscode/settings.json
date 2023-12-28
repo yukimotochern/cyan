@@ -3,5 +3,5 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.validate": ["json"],
   "typescript.tsdk": "node_modules/typescript/lib",
-  "cSpell.words": ["hostssl", "initdb"]
+  "cSpell.words": ["execa", "hostssl", "initdb"]
 }

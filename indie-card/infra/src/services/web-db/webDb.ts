@@ -1,24 +1,25 @@
 import * as pulumi from '@pulumi/pulumi';
 import * as docker from '@pulumi/docker';
 import * as k8s from '@pulumi/kubernetes';
-import { appName } from '../../env/env';
-import { isCertificateReady, generalEnv } from '../../env/general.env';
-import { serviceName, webDbEnv, webDbRunTimeEnv } from './webDb.env';
+import { appName, stack } from '../../env/env.js';
+import { isCertificateReady, env, isMinikube } from '../../env/env.js';
+import {
+  serviceName,
+  webDbEnv,
+  webDbRunTimeK8sEnv,
+  nxProjectName,
+} from './webDb.env.js';
 
-const { INFRA_POSTGRES_DB, INFRA_POSTGRES_USER, INFRA_POSTGRES_PASSWORD } =
-  webDbEnv;
-const { INFRA_GITHUB_REGISTRY, INFRA_GITHUB_USERNAME, INFRA_GITHUB_SECRET } =
-  generalEnv;
+const { POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD } = webDbEnv;
+const { GITHUB_REGISTRY, GITHUB_USERNAME, GITHUB_SECRET } = env;
 
 export const setupWebDb = ({
   kubProvider,
   githubRegistrySecret,
-  version,
   certManagerSecret,
 }: {
   kubProvider?: pulumi.ProviderResource;
   githubRegistrySecret: k8s.core.v1.Secret;
-  version: string;
   certManagerSecret?: pulumi.Output<k8s.core.v1.Secret>;
 }) => {
   /**
@@ -26,6 +27,8 @@ export const setupWebDb = ({
    * `[APP_NAME]-[SERVICE_NAME]-[RESOURCE_NAME]`
    * Variable name format:
    * `[SERVICE_NAME]-[RESOURCE_NAME]`
+   * Nx project name:
+   * `[APP_NAME]-[SERVICE_NAME]`
    */
   const webDbPrefix = `${appName}-${serviceName}`;
 
@@ -57,8 +60,8 @@ export const setupWebDb = ({
     `${webDbPrefix}-pg-secret`,
     {
       stringData: {
-        username: INFRA_POSTGRES_USER,
-        password: INFRA_POSTGRES_PASSWORD,
+        username: POSTGRES_USER,
+        password: POSTGRES_PASSWORD,
       },
       type: 'kubernetes.io/basic-auth',
     },
@@ -66,11 +69,15 @@ export const setupWebDb = ({
   );
 
   /* CloudNativePG Db Cluster */
+  const webDbClusterName = `${webDbPrefix}-cluster`;
   const webDbCluster = new k8s.apiextensions.CustomResource(
-    `${webDbPrefix}-cluster`,
+    webDbClusterName,
     {
       apiVersion: 'postgresql.cnpg.io/v1',
       kind: 'Cluster',
+      metadata: {
+        name: webDbClusterName,
+      },
       spec: {
         instances: 1,
         postgresql: {
@@ -84,8 +91,8 @@ export const setupWebDb = ({
         },
         bootstrap: {
           initdb: {
-            database: INFRA_POSTGRES_DB,
-            owner: INFRA_POSTGRES_USER,
+            database: POSTGRES_DB,
+            owner: POSTGRES_USER,
             secret: { name: webDbPgSecrets.metadata.name },
           },
         },
@@ -130,20 +137,20 @@ export const setupWebDb = ({
   const webDbServiceName = pulumi.interpolate`${webDbCluster.metadata.name}-rw`;
 
   /* Db Job Image */
-  const webDbJobImageRegistry = `${INFRA_GITHUB_REGISTRY}/${serviceName}`;
+  const webDbJobImageRegistry = `${GITHUB_REGISTRY}/${webDbPrefix}-${stack}`;
   const webDbJobImageName = `${webDbJobImageRegistry}:${version}`;
   const webDbJobImage = new docker.Image(`${webDbPrefix}-image`, {
     build: {
       args: {
-        platform: 'linux/amd64',
+        ...(!isMinikube && { platform: 'linux/amd64' }),
       },
-      context: '../../../../..',
-      dockerfile: '../../../../web-db/Dockerfile',
+      context: '../..',
+      dockerfile: '../web-db/Dockerfile',
     },
     imageName: webDbJobImageName,
     registry: {
-      username: INFRA_GITHUB_USERNAME,
-      password: INFRA_GITHUB_SECRET,
+      username: GITHUB_USERNAME,
+      password: GITHUB_SECRET,
       server: webDbJobImageRegistry,
     },
   });
@@ -166,12 +173,9 @@ export const setupWebDb = ({
                 name: webDbJobName,
                 image: webDbJobImage.imageName,
                 env: [
-                  ...Object.entries(webDbRunTimeEnv).map(([key, value]) => ({
-                    name: key,
-                    value,
-                  })),
+                  ...webDbRunTimeK8sEnv,
                   {
-                    name: 'RUN_TIME_DATABASE_HOST',
+                    name: 'DATABASE_HOST',
                     value: webDbServiceName,
                   },
                 ],

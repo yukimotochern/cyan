@@ -1,8 +1,8 @@
 import * as k8s from '@pulumi/kubernetes';
 import * as pulumi from '@pulumi/pulumi';
-import { generalEnv } from '../../env/general.env';
+import { env } from '../../env/env.js';
 
-const { INFRA_GITHUB_SECRET, INFRA_GITHUB_USERNAME } = generalEnv;
+const { GITHUB_SECRET, GITHUB_USERNAME } = env;
 
 export const setupGithubResources = ({
   kubProvider,
@@ -18,7 +18,7 @@ export const setupGithubResources = ({
       },
       data: {
         '.dockerconfigjson':
-          pulumi.interpolate`${INFRA_GITHUB_USERNAME}:${INFRA_GITHUB_SECRET}`.apply(
+          pulumi.interpolate`${GITHUB_USERNAME}:${GITHUB_SECRET}`.apply(
             (cred) =>
               Buffer.from(
                 JSON.stringify({

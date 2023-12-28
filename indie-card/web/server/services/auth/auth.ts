@@ -9,36 +9,17 @@ import {
 } from 'next-auth';
 import { orm } from '../db/client';
 
-const {
-  RUN_TIME_GOOGLE_OAUTH_CLIENT_ID,
-  RUN_TIME_GOOGLE_OAUTH_CLIENT_SECRET,
-  RUN_TIME_NEXTAUTH_SECRET,
-  NEXT_PUBLIC_NEXTAUTH_URL,
-} = env;
+const { GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET } = env;
 
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(orm),
   providers: [
     GoogleProvider({
-      clientId: RUN_TIME_GOOGLE_OAUTH_CLIENT_ID,
-      clientSecret: RUN_TIME_GOOGLE_OAUTH_CLIENT_SECRET,
+      clientId: GOOGLE_OAUTH_CLIENT_ID,
+      clientSecret: GOOGLE_OAUTH_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
     }),
   ],
-  // callbacks: {
-  //   async redirect({ url, baseUrl }) {
-  //     console.log('hi', url, baseUrl, NEXT_PUBLIC_NEXTAUTH_URL);
-  //     return NEXT_PUBLIC_NEXTAUTH_URL;
-  //   },
-  // },
-  secret: RUN_TIME_NEXTAUTH_SECRET,
-  pages: {
-    signIn: NEXT_PUBLIC_NEXTAUTH_URL + '/auth/signin',
-    signOut: NEXT_PUBLIC_NEXTAUTH_URL + '/auth/signout',
-    error: NEXT_PUBLIC_NEXTAUTH_URL + '/auth/error', // Error code passed in query string as ?error=
-    verifyRequest: NEXT_PUBLIC_NEXTAUTH_URL + '/auth/verify-request', // (used for check email message)
-    newUser: NEXT_PUBLIC_NEXTAUTH_URL + '/auth/new-user', // New users will be directed here on first sign in (leave the property out if not of interest)
-  },
 };
 
 declare module 'next-auth' {

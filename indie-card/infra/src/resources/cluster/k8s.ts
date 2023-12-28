@@ -2,39 +2,18 @@ import * as pulumi from '@pulumi/pulumi';
 import * as eks from '@pulumi/eks';
 import * as k8s from '@pulumi/kubernetes';
 import * as digitalocean from '@pulumi/digitalocean';
-import { appName } from '../../env/env';
-import { logger } from '../../utils/logger';
-import { generalEnv, serviceName } from '../../env/general.env';
+import { appName, serviceName, env } from '../../env/env.js';
+import { logger } from '../../utils/logger.js';
 
-const {
-  INFRA_K8S_PROVIDER_NAME,
-  INFRA_SPACES_ACCESS_KEY_ID,
-  INFRA_SPACES_SECRET_ACCESS_KEY,
-  INFRA_DIGITALOCEAN_TOKEN,
-} = generalEnv;
-
-const insertDigitalOceanEnv = () => {
-  process.env.SPACES_ACCESS_KEY_ID = INFRA_SPACES_ACCESS_KEY_ID;
-  INFRA_SPACES_SECRET_ACCESS_KEY.apply((env) => {
-    process.env.SPACES_SECRET_ACCESS_KEY = env;
-  });
-  INFRA_DIGITALOCEAN_TOKEN.apply((env) => {
-    process.env.DIGITALOCEAN_TOKEN = env;
-  });
-};
+const { K8S_PROVIDER_NAME } = env;
 
 export const setupK8sCluster = () => {
   let cluster: digitalocean.KubernetesCluster | eks.Cluster;
   const clusterName = `${appName}-${serviceName}-k8s-cluster`;
   let kubeConfigOutput: pulumi.Output<string>;
   let kubProvider: pulumi.ProviderResource | undefined;
-  switch (INFRA_K8S_PROVIDER_NAME) {
+  switch (K8S_PROVIDER_NAME) {
     case 'doks':
-      /**
-       * Add process.env with env for the creation to work.
-       * See: https://www.pulumi.com/registry/packages/digitalocean/installation-configuration/
-       */
-      insertDigitalOceanEnv();
       cluster = new digitalocean.KubernetesCluster(clusterName, {
         region: 'sgp1',
         version: '1.28.2-do.0',
