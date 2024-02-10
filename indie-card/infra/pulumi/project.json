@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "indie-card/infra/pulumi/src",
   "projectType": "application",
-  "implicitDependencies": ["indie-card-web", "indie-card-web-db"],
+  "implicitDependencies": ["indie-card-game-next", "indie-card-game-db-jobs"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",

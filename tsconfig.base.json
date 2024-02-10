@@ -27,9 +27,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@cyan/indie-card/web-db-tables": [
-        "indie-card/web-db-tables/src/index.ts"
-      ],
+      "@cyan/indie-card-game-db": ["indie-card/game/db/src/index.ts"],
       "@cyan/pulumi": ["plugins/pulumi/src/index.ts"]
     }
   },

@@ -1,0 +1,72 @@
+{
+  "name": "indie-card-game-db-jobs",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "indie-card/game/db-jobs/src",
+  "projectType": "application",
+  "implicitDependencies": ["indie-card-game-db"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/indie-card/game/db-jobs",
+        "main": "indie-card/game/db-jobs/src/main.ts",
+        "tsConfig": "indie-card/game/db-jobs/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "indie-card/game/db-jobs/webpack.config.js",
+        "assets": ["indie-card/game/db-jobs/src/migrations"],
+        "externalDependencies": "none"
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generatePackageJson": true
+        }
+      }
+    },
+    "execute": {
+      "executor": "@nx/js:node",
+      "dependsOn": ["build"],
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "indie-card-game-db-jobs:build",
+        "inspect": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "indie-card-game-db-jobs:build:development"
+        },
+        "production": {
+          "buildTarget": "indie-card-game-db-jobs:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "indie-card/game/db-jobs/jest.config.ts"
+      }
+    },
+    "generate-schema-migration": {
+      "command": "drizzle-kit generate:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts"
+    },
+    "generate-custom-migration": {
+      "command": "drizzle-kit generate:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts --custom"
+    },
+    "check-migrations": {
+      "command": "drizzle-kit check:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts"
+    },
+    "db-push": {
+      "command": "drizzle-kit push:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts && nx watch --projects=indie-card-web-db --verbose --includeDependentProjects -- drizzle-kit push:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts"
+    }
+  },
+  "tags": []
+}
