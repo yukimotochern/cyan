@@ -12,5 +12,5 @@ export const logger = pinoCaller(
   }),
   {
     relativeTo: process.cwd(),
-  }
+  },
 );

@@ -59,5 +59,6 @@
         "linter": "eslint"
       }
     }
-  }
+  },
+  "nxCloudAccessToken": "MGM0YmFlN2ItODYzMC00NjVlLWE1NWYtZjhhMzBlMDE5MGNlfHJlYWQtd3JpdGU="
 }

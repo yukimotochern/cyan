@@ -1,7 +1,7 @@
 {
-  "name": "indie-card-infra",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "indie-card/infra/src",
+  "name": "indie-card-infra-pulumi",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "indie-card/infra/pulumi/src",
   "projectType": "application",
   "implicitDependencies": ["indie-card-web", "indie-card-web-db"],
   "targets": {
@@ -12,11 +12,11 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
-        "outputPath": "dist/indie-card/infra",
-        "main": "indie-card/infra/src/index.ts",
-        "tsConfig": "indie-card/infra/tsconfig.app.json",
+        "outputPath": "dist/indie-card/infra/pulumi",
+        "main": "indie-card/infra/pulumi/src/index.ts",
+        "tsConfig": "indie-card/infra/pulumi/tsconfig.app.json",
         "isolatedConfig": true,
-        "webpackConfig": "indie-card/infra/webpack.config.js"
+        "webpackConfig": "indie-card/infra/pulumi/webpack.config.js"
       },
       "configurations": {
         "development": {},
@@ -29,14 +29,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "indie-card-infra:build"
+        "buildTarget": "indie-card-infra-pulumi:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "indie-card-infra:build:development"
+          "buildTarget": "indie-card-infra-pulumi:build:development"
         },
         "production": {
-          "buildTarget": "indie-card-infra:build:production"
+          "buildTarget": "indie-card-infra-pulumi:build:production"
         }
       }
     },
@@ -48,12 +48,12 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "indie-card/infra/jest.config.ts"
+        "jestConfig": "indie-card/infra/pulumi/jest.config.ts"
       }
     },
     "docker-build": {
       "dependsOn": ["build"],
-      "command": "docker build -f indie-card/infra/Dockerfile . -t indie-card-infra"
+      "command": "docker build -f indie-card/infra/pulumi/Dockerfile . -t indie-card-infra"
     },
     "up": {
       "executor": "@cyan/pulumi:up",
