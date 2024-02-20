@@ -1,22 +1,23 @@
-import * as pulumi from '@pulumi/pulumi';
 import { z } from 'zod';
-import { EnvDef, nonEmptyString, parseEnv } from './helpers.js';
+import { naming } from '@cyan/utils-naming';
+import {
+  EnvDef,
+  nonEmptyString,
+  parseEnv,
+  getDopplerEnv,
+  stack as stackFromProcessEnv,
+} from './helpers';
 
-export const stack = pulumi.getStack();
-export const appName = 'indie-card';
-export const serviceName = 'infra';
+export const project = naming.project('indie-card');
+export const stack = project.stack(stackFromProcessEnv);
+export const service = stack.service('infra');
 
 const envDef = {
-  /**
-   * Doppler env
-   * Doppler token is required to be available on pulumi preview phase. Therefore,
-   * it can not be set as secret. This is because `pulumi.secret` is not available
-   * in such phases.
-   */
-  DOPPLER_TOKEN: {
+  // Pulumi
+  PULUMI_ACCESS_TOKEN: {
     schema: nonEmptyString,
     isSecret: false,
-    steps: ['infra'],
+    steps: ['pulumi'],
   },
   // K8s
   K8S_PROVIDER_NAME: {
@@ -69,30 +70,45 @@ const envDef = {
   SPACES_ACCESS_KEY_ID: {
     schema: nonEmptyString,
     isSecret: false,
-    steps: ['infra'],
+    steps: ['pulumi'],
   },
   SPACES_SECRET_ACCESS_KEY: {
     schema: nonEmptyString,
-    isSecret: true,
-    steps: ['infra'],
+    isSecret: false,
+    steps: ['pulumi'],
   },
   DIGITALOCEAN_TOKEN: {
     schema: nonEmptyString,
-    isSecret: true,
-    steps: ['infra'],
+    isSecret: false,
+    steps: ['pulumi'],
   },
 } satisfies EnvDef;
 
-export const env = parseEnv({
-  data: process.env,
+const rawEnv = await getDopplerEnv({
+  naming: service,
+});
+
+export const infraEnv = parseEnv({
+  data: rawEnv,
   def: envDef,
+  filter: {
+    steps: ['infra'],
+  },
+});
+
+export const pulumiEnv = parseEnv({
+  data: rawEnv,
+  def: envDef,
+  filter: {
+    steps: ['pulumi'],
+  },
 });
 
 export const isDnsReady =
-  env.SSL_STATUS === 'dns ready' ||
-  env.SSL_STATUS === 'certificate and dns ready';
+  infraEnv.SSL_STATUS === 'dns ready' ||
+  infraEnv.SSL_STATUS === 'certificate and dns ready';
 
 export const isCertificateReady =
-  env.SSL_STATUS === 'certificate and dns ready';
+  infraEnv.SSL_STATUS === 'certificate and dns ready';
 
-export const isMinikube = env.K8S_PROVIDER_NAME === 'mini';
+export const isMinikube = infraEnv.K8S_PROVIDER_NAME === 'mini';

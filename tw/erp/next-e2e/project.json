@@ -1,0 +1,25 @@
+{
+  "name": "tw-erp-next-e2e",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tw/erp/next-e2e/src",
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "tw/erp/next-e2e/cypress.config.ts",
+        "testingType": "e2e",
+        "devServerTarget": "tw-erp-next:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "tw-erp-next:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["tw-erp-next"]
+}

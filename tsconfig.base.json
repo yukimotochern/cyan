@@ -20,15 +20,19 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2020",
+    "target": "es2022",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": ["es2022", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
       "@cyan/indie-card-game-db": ["indie-card/game/db/src/index.ts"],
-      "@cyan/pulumi": ["plugins/pulumi/src/index.ts"]
+      "@cyan/pulumi": ["plugins/pulumi/src/index.ts"],
+      "@cyan/tw-erp-db": ["tw/erp/db/src/index.ts"],
+      "@cyan/utils-infra": ["utils/infra/src/index.ts"],
+      "@cyan/utils-naming": ["utils/naming/src/index.ts"],
+      "@cyan/utils-string": ["utils/string/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

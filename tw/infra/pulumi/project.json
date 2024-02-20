@@ -1,0 +1,45 @@
+{
+  "name": "tw-infra-pulumi",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tw/infra/pulumi/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/tw/infra/pulumi",
+        "main": "tw/infra/pulumi/src/main.ts",
+        "tsConfig": "tw/infra/pulumi/tsconfig.app.json",
+        "assets": ["tw/infra/pulumi/src/assets"],
+        "webpackConfig": "tw/infra/pulumi/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "tw-infra-pulumi:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "tw-infra-pulumi:build:development"
+        },
+        "production": {
+          "buildTarget": "tw-infra-pulumi:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  },
+  "tags": []
+}

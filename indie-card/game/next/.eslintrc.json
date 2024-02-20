@@ -16,7 +16,10 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "@next/next/no-html-link-for-pages": ["error", "indie-card/web/pages"]
+        "@next/next/no-html-link-for-pages": [
+          "error",
+          "indie-card/game/next/pages"
+        ]
       }
     },
     {

@@ -7,7 +7,7 @@
   },
   "references": [
     {
-      "path": "../web-db-tables/tsconfig.lib.json"
+      "path": "../db/tsconfig.lib.json"
     }
   ],
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],

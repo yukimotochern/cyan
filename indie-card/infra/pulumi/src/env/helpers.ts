@@ -1,8 +1,9 @@
 import Doppler from '@dopplerhq/node-sdk';
 import * as pulumi from '@pulumi/pulumi';
 import { z } from 'zod';
+import type { GenericNamingBuilder } from '@cyan/utils-naming';
 
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 export const nonEmptyString = z.string().min(1);
 
@@ -10,6 +11,7 @@ const envSteps = [
   'buildTime',
   'runTime',
   'infra',
+  'pulumi',
 ] as const satisfies readonly string[];
 
 type EnvSteps = (typeof envSteps)[number];
@@ -64,35 +66,6 @@ export type MappedToInferredSchemaType<Def extends EnvDef> = {
     : never;
 };
 
-export const getDopplerEnv = async ({
-  appName,
-  serviceName,
-  envName,
-  dopplerToken,
-}: {
-  appName: string;
-  serviceName: string;
-  envName: string;
-  dopplerToken: string;
-}) => {
-  const doppler = new Doppler({
-    accessToken: dopplerToken,
-  });
-  try {
-    const data = await doppler.secrets.download(
-      `${appName}-${serviceName}`,
-      envName,
-    );
-    return data;
-  } catch (err) {
-    logger.error(
-      { err, appName, serviceName, envName },
-      'Unable to retrieve doppler env.',
-    );
-    process.exit(1);
-  }
-};
-
 export const parseEnv = <Def extends EnvDef, Option extends FilterOption>({
   def,
   data,
@@ -134,6 +107,47 @@ export const parseEnv = <Def extends EnvDef, Option extends FilterOption>({
   });
 
   return parsedData;
+};
+
+const processEnvDef = {
+  DOPPLER_TOKEN: {
+    schema: nonEmptyString,
+    isSecret: false,
+    steps: ['pulumi'],
+  },
+  STACK: {
+    schema: nonEmptyString,
+    isSecret: false,
+    steps: ['pulumi'],
+  },
+} satisfies EnvDef;
+
+const { DOPPLER_TOKEN, STACK } = parseEnv({
+  data: process.env,
+  def: processEnvDef,
+});
+
+export const stack = STACK;
+
+export const getDopplerEnv = async ({
+  naming,
+}: {
+  naming: GenericNamingBuilder;
+}) => {
+  const doppler = new Doppler({
+    accessToken: DOPPLER_TOKEN,
+  });
+  const dopplerProjectName = naming.output('dopplerProjectName');
+  try {
+    const data = await doppler.secrets.download(dopplerProjectName, STACK);
+    return data;
+  } catch (err) {
+    logger.error(
+      { err, dopplerProjectName, envName: STACK },
+      'Unable to retrieve doppler env.',
+    );
+    process.exit(1);
+  }
 };
 
 export const mapEnvToK8sEnv = <Data>(

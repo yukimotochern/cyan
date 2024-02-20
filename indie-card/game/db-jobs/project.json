@@ -15,7 +15,6 @@
         "outputPath": "dist/indie-card/game/db-jobs",
         "main": "indie-card/game/db-jobs/src/main.ts",
         "tsConfig": "indie-card/game/db-jobs/tsconfig.app.json",
-        "isolatedConfig": true,
         "webpackConfig": "indie-card/game/db-jobs/webpack.config.js",
         "assets": ["indie-card/game/db-jobs/src/migrations"],
         "externalDependencies": "none"
@@ -65,7 +64,7 @@
       "command": "drizzle-kit check:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts"
     },
     "db-push": {
-      "command": "drizzle-kit push:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts && nx watch --projects=indie-card-web-db --verbose --includeDependentProjects -- drizzle-kit push:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts"
+      "command": "drizzle-kit push:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts && nx watch --projects=indie-card-game-db-jobs --verbose --includeDependentProjects -- drizzle-kit push:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts"
     }
   },
   "tags": []

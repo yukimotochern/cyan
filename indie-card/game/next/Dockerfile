@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=node:18.18
+ARG BASE_IMAGE=node:20.11.1
 FROM ${BASE_IMAGE} AS Build
 
 WORKDIR /app
@@ -17,17 +17,17 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm nx run indie-card-web:build:production --verbose
+RUN pnpm nx run indie-card-game-next:build:production --verbose
 
 FROM ${BASE_IMAGE}
-COPY --from=Build /app/dist/indie-card/web /app/dist/indie-card/web
+COPY --from=Build /app/dist/indie-card/game/next /app/dist/indie-card/game/next
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
 RUN corepack enable
 
-WORKDIR /app/dist/indie-card/web
+WORKDIR /app/dist/indie-card/game/next
 
 RUN pnpm install --frozen-lockfile
 

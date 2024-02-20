@@ -13,9 +13,8 @@
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/indie-card/infra/pulumi",
-        "main": "indie-card/infra/pulumi/src/index.ts",
+        "main": "indie-card/infra/pulumi/src/main.ts",
         "tsConfig": "indie-card/infra/pulumi/tsconfig.app.json",
-        "isolatedConfig": true,
         "webpackConfig": "indie-card/infra/pulumi/webpack.config.js"
       },
       "configurations": {
@@ -29,7 +28,9 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "indie-card-infra-pulumi:build"
+        "buildTarget": "indie-card-infra-pulumi:build",
+        "inspect": false,
+        "watch": false
       },
       "configurations": {
         "development": {
@@ -54,21 +55,6 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f indie-card/infra/pulumi/Dockerfile . -t indie-card-infra"
-    },
-    "up": {
-      "executor": "@cyan/pulumi:up",
-      "options": {},
-      "configurations": {
-        "mini": {
-          "stack": "mini"
-        },
-        "dev": {
-          "stack": "dev"
-        },
-        "prod": {
-          "stack": "prod"
-        }
-      }
     }
   },
   "tags": []

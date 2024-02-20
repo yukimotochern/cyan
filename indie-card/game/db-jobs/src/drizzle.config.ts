@@ -8,7 +8,7 @@ import {
 } from './env';
 
 export default {
-  schema: 'indie-card/web-db-tables/src/index.ts',
+  schema: 'indie-card/game/db/src/index.ts',
   driver: 'pg',
   dbCredentials: {
     user: DATABASE_USER,
@@ -17,6 +17,6 @@ export default {
     database: DATABASE_DB_NAME,
     port: DATABASE_PORT,
   },
-  out: 'indie-card/web-db/src/migrations',
+  out: 'indie-card/game/db-jobs/src/migrations',
   strict: false,
 } satisfies Config;

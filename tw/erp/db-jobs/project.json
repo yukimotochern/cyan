@@ -1,0 +1,51 @@
+{
+  "name": "tw-erp-db-jobs",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tw/erp/db-jobs/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/tw/erp/db-jobs",
+        "main": "tw/erp/db-jobs/src/main.ts",
+        "tsConfig": "tw/erp/db-jobs/tsconfig.app.json",
+        "assets": ["tw/erp/db-jobs/src/assets"],
+        "webpackConfig": "tw/erp/db-jobs/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generateLockfile": true
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "tw-erp-db-jobs:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "tw-erp-db-jobs:build:development"
+        },
+        "production": {
+          "buildTarget": "tw-erp-db-jobs:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f tw/erp/db-jobs/Dockerfile . -t tw-erp-db-jobs"
+    }
+  },
+  "tags": []
+}

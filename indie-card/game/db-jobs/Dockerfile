@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=node:18.18
+ARG BASE_IMAGE=node:20.11.1
 FROM ${BASE_IMAGE} AS Build
 
 WORKDIR /app
@@ -17,11 +17,11 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm nx run indie-card-web-db:build:production --verbose
+RUN pnpm nx run indie-card-game-db-jobs:build:production --verbose
 
 FROM ${BASE_IMAGE}
-COPY --from=Build /app/dist/indie-card/web-db /app/dist/indie-card/web-db
+COPY --from=Build /app/dist/indie-card/game/db-jobs /app/dist/indie-card/game/db-jobs
 
-WORKDIR /app/dist/indie-card/web-db
+WORKDIR /app/dist/indie-card/game/db-jobs
 
 CMD [ "node", "main.js" ]

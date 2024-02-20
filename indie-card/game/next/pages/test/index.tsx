@@ -32,7 +32,7 @@ export default function Index() {
   if (session) {
     return (
       <>
-        Signed in as {session.user?.email} <br />
+        Hey, signed in as {session.user?.email} <br />
         {Data}
         <input value={text} onChange={(e) => setText(e.target.value)} />
         <button

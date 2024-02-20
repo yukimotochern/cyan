@@ -1,6 +1,6 @@
 import { getGreeting } from '../support/app.po';
 
-describe('indie-card-web-e2e', () => {
+describe('indie-card-game-next-e2e', () => {
   beforeEach(() => cy.visit('/'));
 
   it('should display welcome message', () => {
