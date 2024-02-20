@@ -4,6 +4,7 @@ import * as k8s from '@pulumi/kubernetes';
 import { pulumiPrefix, stack, pulumiEnv } from './env/env';
 import { setupGithubSecret } from './services/erp/shared/githubSecret';
 import { createErpNameSpace } from './services/erp/shared/namespace';
+import { simpleGit } from 'simple-git';
 
 const program: PulumiFn = async () => {
   /* Get kubeconfig */
