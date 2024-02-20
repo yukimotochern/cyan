@@ -6,7 +6,7 @@ export const createGameIngress = ({
   gameNextSvc,
   clusterIssuer,
   namespace,
-  naming,
+  namingBuilder,
   isMinikube,
   isDnsReady,
   INDIE_CARD_WEB_HOST_DOMAIN,
@@ -15,13 +15,13 @@ export const createGameIngress = ({
   gameNextSvc: k8s.core.v1.Service;
   clusterIssuer?: k8s.apiextensions.CustomResource;
   namespace: k8s.core.v1.Namespace;
-  naming: GenericNamingBuilder;
+  namingBuilder: GenericNamingBuilder;
   isMinikube: boolean;
   isDnsReady: boolean;
   INDIE_CARD_WEB_HOST_DOMAIN: string;
 }) => {
   if (!isMinikube) {
-    const ingressResource = naming.resource('ingress');
+    const ingressResource = namingBuilder.resource('ingress');
     new k8s.networking.v1.Ingress(
       ingressResource.output('pulumiResourceName'),
       {

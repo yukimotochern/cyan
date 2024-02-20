@@ -40,19 +40,19 @@ const program: PulumiFn = async () => {
   /* Kubernetes Cluster */
   const { kubProvider, kubeConfigOutput } = createK8sCluster({
     K8S_PROVIDER_NAME,
-    naming: infraService,
+    namingBuilder: infraService,
   });
 
   /* CloudNative PG */
   const { cloudNativePgHelmRelease } = installCloudNativePG({
     kubProvider,
-    naming: infraService,
+    namingBuilder: infraService,
   });
 
   /* Certificate Manager */
   const { certManagerHelmRelease, clusterIssuer } = installCertManager({
     kubProvider,
-    naming: infraService,
+    namingBuilder: infraService,
   });
 
   /* Game */
@@ -95,7 +95,7 @@ const program: PulumiFn = async () => {
     gameDbCluster,
     gameDbServiceName,
     namespace: gameNs,
-    naming: gameDbJobsComponent,
+    namingBuilder: gameDbJobsComponent,
     githubSecret: gameGithubSecret,
     GITHUB_REGISTRY,
     GITHUB_SECRET,
@@ -110,7 +110,7 @@ const program: PulumiFn = async () => {
     gameDbServiceName,
     gameDbJobs,
     namespace: gameNs,
-    naming: gameNextComponent,
+    namingBuilder: gameNextComponent,
     githubSecret: gameGithubSecret,
     GITHUB_REGISTRY,
     GITHUB_SECRET,
@@ -123,7 +123,7 @@ const program: PulumiFn = async () => {
     kubProvider,
     gameDbCluster,
     gameDbServiceName,
-    naming: infraService,
+    namingBuilder: infraService,
     isMinikube,
   });
 
@@ -133,7 +133,7 @@ const program: PulumiFn = async () => {
     gameNextSvc,
     clusterIssuer,
     namespace: gameNs,
-    naming: gameService,
+    namingBuilder: gameService,
     isMinikube,
     isDnsReady,
     INDIE_CARD_WEB_HOST_DOMAIN,
@@ -153,7 +153,7 @@ const deploy = async () => {
       envVars: pulumiEnv,
     },
   );
-
+  // const outputs = await localStack.outputs();
   // await localStack.cancel({ onOutput: console.info });
   // await localStack.destroy({ onOutput: console.info });
   await localStack.up({ onOutput: console.info });

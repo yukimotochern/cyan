@@ -6,16 +6,16 @@ const { LETS_ENCRYPT_EMAIL } = infraEnv;
 
 export const installCertManager = ({
   kubProvider,
-  naming,
+  namingBuilder,
 }: {
   kubProvider?: k8s.Provider;
-  naming: GenericNamingBuilder;
+  namingBuilder: GenericNamingBuilder;
 }) => {
   let certManagerHelmRelease: k8s.helm.v3.Release | undefined;
   let clusterIssuer: k8s.apiextensions.CustomResource | undefined;
   if (isDnsReady) {
     certManagerHelmRelease = new k8s.helm.v3.Release(
-      naming.resource('helm-cert-manager').output('pulumiResourceName'),
+      namingBuilder.resource('helm-cert-manager').output('pulumiResourceName'),
       {
         repositoryOpts: {
           repo: 'https://charts.jetstack.io',
@@ -29,7 +29,7 @@ export const installCertManager = ({
       { provider: kubProvider },
     );
 
-    const clusterIssuerResource = naming.resource('cluster-issuer');
+    const clusterIssuerResource = namingBuilder.resource('cluster-issuer');
     const clusterIssuerMetaName = clusterIssuerResource.output('k8sMetaName');
     clusterIssuer = new k8s.apiextensions.CustomResource(
       clusterIssuerResource.output('pulumiResourceName'),

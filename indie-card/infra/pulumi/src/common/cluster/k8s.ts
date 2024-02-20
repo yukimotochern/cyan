@@ -6,16 +6,16 @@ import { logger } from '../../utils/logger';
 import { GenericNamingBuilder } from '@cyan/utils-naming';
 
 export const createK8sCluster = ({
-  naming,
+  namingBuilder,
   K8S_PROVIDER_NAME,
 }: {
-  naming: GenericNamingBuilder;
+  namingBuilder: GenericNamingBuilder;
   K8S_PROVIDER_NAME: string;
 }) => {
   let cluster: digitalocean.KubernetesCluster | eks.Cluster;
   let kubeConfigOutput: pulumi.Output<string>;
   let kubProvider: pulumi.ProviderResource | undefined;
-  const clusterResource = naming.resource('k8s-cluster');
+  const clusterResource = namingBuilder.resource('k8s-cluster');
   const clusterName = clusterResource.output('pulumiResourceName');
 
   switch (K8S_PROVIDER_NAME) {
@@ -32,7 +32,7 @@ export const createK8sCluster = ({
       });
       kubeConfigOutput = cluster.kubeConfigs[0].rawConfig;
       kubProvider = new k8s.Provider(
-        naming.resource('k8s-provider').output('pulumiResourceName'),
+        namingBuilder.resource('k8s-provider').output('pulumiResourceName'),
         {
           kubeconfig: kubeConfigOutput,
         },
@@ -48,7 +48,7 @@ export const createK8sCluster = ({
       });
       kubeConfigOutput = cluster.kubeconfigJson;
       kubProvider = new k8s.Provider(
-        naming.resource('k8s-provider').output('pulumiResourceName'),
+        namingBuilder.resource('k8s-provider').output('pulumiResourceName'),
         {
           kubeconfig: kubeConfigOutput,
         },

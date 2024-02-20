@@ -6,19 +6,19 @@ export const createIngressController = ({
   kubProvider,
   gameDbCluster,
   gameDbServiceName,
-  naming,
+  namingBuilder,
   isMinikube,
 }: {
   kubProvider?: k8s.Provider;
   gameDbCluster: k8s.apiextensions.CustomResource;
   gameDbServiceName: pulumi.Output<string>;
-  naming: GenericNamingBuilder;
+  namingBuilder: GenericNamingBuilder;
   isMinikube: boolean;
 }) => {
   let nginxIngressController: k8s.helm.v3.Release | undefined;
   if (!isMinikube) {
     nginxIngressController = new k8s.helm.v3.Release(
-      naming.resource('ing-ctl').output('pulumiResourceName'),
+      namingBuilder.resource('ing-ctl').output('pulumiResourceName'),
       {
         repositoryOpts: {
           repo: 'https://kubernetes.github.io/ingress-nginx',

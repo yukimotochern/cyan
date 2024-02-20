@@ -19,7 +19,7 @@ export const createGameNextApp = ({
   gameDbServiceName,
   gameDbJobs,
   namespace,
-  naming,
+  namingBuilder,
   GITHUB_USERNAME,
   GITHUB_SECRET,
   GITHUB_REGISTRY,
@@ -31,16 +31,18 @@ export const createGameNextApp = ({
   gameDbServiceName: pulumi.Output<string>;
   gameDbJobs: k8s.batch.v1.Job;
   namespace: k8s.core.v1.Namespace;
-  naming: GenericNamingBuilder;
+  namingBuilder: GenericNamingBuilder;
   GITHUB_USERNAME: string;
   GITHUB_SECRET: pulumi.Output<string>;
   GITHUB_REGISTRY: string;
   isMinikube: boolean;
 }) => {
   /* Game-Next Image */
-  const image = naming.baseImageRegistry(GITHUB_REGISTRY).imageVersion(version);
+  const image = namingBuilder
+    .baseImageRegistry(GITHUB_REGISTRY)
+    .imageVersion(version);
   const gameNextImage = new docker.Image(
-    naming.resource('image').output('pulumiResourceName'),
+    namingBuilder.resource('image').output('pulumiResourceName'),
     {
       build: {
         args: {
@@ -60,7 +62,7 @@ export const createGameNextApp = ({
   );
 
   /* Game-Next Deployment */
-  const gameNextDeploymentResource = naming.resource('deployment');
+  const gameNextDeploymentResource = namingBuilder.resource('deployment');
   const gameNextDeploymentLabel = gameNextDeploymentResource.output('k8sLabel');
   const gameNextDeployment = new k8s.apps.v1.Deployment(
     gameNextDeploymentResource.output('pulumiResourceName'),
@@ -83,7 +85,9 @@ export const createGameNextApp = ({
             containers: [
               {
                 image: gameNextImage.imageName,
-                name: naming.resource('container').output('k8sContainerName'),
+                name: namingBuilder
+                  .resource('container')
+                  .output('k8sContainerName'),
                 ports: [
                   {
                     containerPort: parseInt(PORT),
@@ -109,7 +113,7 @@ export const createGameNextApp = ({
   );
 
   /* Game-Next Service */
-  const gameNextSvcResource = naming.resource('service');
+  const gameNextSvcResource = namingBuilder.resource('service');
   const gameNextSvc = new k8s.core.v1.Service(
     gameNextSvcResource.output('pulumiResourceName'),
     {

@@ -10,7 +10,7 @@ export const createGameDbJobs = ({
   gameDbCluster,
   gameDbServiceName,
   namespace,
-  naming,
+  namingBuilder,
   GITHUB_USERNAME,
   GITHUB_SECRET,
   GITHUB_REGISTRY,
@@ -21,16 +21,18 @@ export const createGameDbJobs = ({
   gameDbCluster: k8s.apiextensions.CustomResource;
   gameDbServiceName: pulumi.Output<string>;
   namespace: k8s.core.v1.Namespace;
-  naming: GenericNamingBuilder;
+  namingBuilder: GenericNamingBuilder;
   GITHUB_USERNAME: string;
   GITHUB_SECRET: pulumi.Output<string>;
   GITHUB_REGISTRY: string;
   isMinikube: boolean;
 }) => {
   /* Game DB jobs Image */
-  const image = naming.baseImageRegistry(GITHUB_REGISTRY).imageVersion(version);
+  const image = namingBuilder
+    .baseImageRegistry(GITHUB_REGISTRY)
+    .imageVersion(version);
   const gameDbJobsImage = new docker.Image(
-    naming.resource('image').output('pulumiResourceName'),
+    namingBuilder.resource('image').output('pulumiResourceName'),
     {
       build: {
         context: '.',
@@ -47,7 +49,7 @@ export const createGameDbJobs = ({
   );
 
   /* Game Db Jobs */
-  const gameDbJobsResource = naming.resource('job');
+  const gameDbJobsResource = namingBuilder.resource('job');
   const gameDbJobs = new k8s.batch.v1.Job(
     gameDbJobsResource.output('pulumiResourceName'),
     {
@@ -65,7 +67,9 @@ export const createGameDbJobs = ({
             ],
             containers: [
               {
-                name: naming.resource('container').output('k8sContainerName'),
+                name: namingBuilder
+                  .resource('container')
+                  .output('k8sContainerName'),
                 image: gameDbJobsImage.imageName,
                 env: [
                   ...gameDbJobsRunTimeK8sEnv,

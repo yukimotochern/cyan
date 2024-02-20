@@ -4,17 +4,17 @@ import { GenericNamingBuilder } from '@cyan/utils-naming';
 
 export const installCloudNativePG = ({
   kubProvider,
-  naming,
+  namingBuilder,
 }: {
   kubProvider?: pulumi.ProviderResource;
-  naming: GenericNamingBuilder;
+  namingBuilder: GenericNamingBuilder;
 }) => {
   /**
    * Install CloudNativePG
    *  - Installation: https://cloudnative-pg.io/documentation/1.22/installation_upgrade/
    */
   const cloudNativePgHelmRelease = new k8s.helm.v3.Release(
-    naming.resource('cnpg').output('pulumiResourceName'),
+    namingBuilder.resource('cnpg').output('pulumiResourceName'),
     {
       repositoryOpts: {
         repo: 'https://cloudnative-pg.github.io/charts',
