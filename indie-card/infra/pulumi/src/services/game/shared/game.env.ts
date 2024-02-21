@@ -1,2 +1,2 @@
-import { project } from '../../../env/env';
-export const service = project.service('game');
+import { stack } from '../../../env/env';
+export const service = stack.service('game');

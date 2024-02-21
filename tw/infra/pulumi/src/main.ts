@@ -20,11 +20,11 @@ import { stackOutputSchema } from './utils/stackOutput';
 
 const { GITHUB_REGISTRY, GITHUB_SECRET, GITHUB_USERNAME } = infraEnv;
 
-const stackName = erpService.get('stack');
+const stackName = infraService.get('stack');
 
 const program = (async (info: ImageOutputInfo = []) => {
   const indieCard = naming
-    .organization('yukimoto')
+    .organization('Yukimotochern')
     .project('indie-card')
     .stack(infraService.get('stack'));
 

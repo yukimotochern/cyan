@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "tw/infra/pulumi/src",
   "projectType": "application",
+  "implicitDependencies": ["tw-erp-scraper"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
@@ -19,18 +20,23 @@
       },
       "configurations": {
         "development": {},
-        "production": {}
+        "production": {
+          "generatePackageJson": true
+        }
       }
     },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "tw-infra-pulumi:build"
+        "buildTarget": "tw-infra-pulumi:build",
+        "inspect": false,
+        "watch": false
       },
       "configurations": {
         "development": {
-          "buildTarget": "tw-infra-pulumi:build:development"
+          "buildTarget": "tw-infra-pulumi:build:development",
+          "runtimeArgs": ["--trace-deprecation"]
         },
         "production": {
           "buildTarget": "tw-infra-pulumi:build:production"
