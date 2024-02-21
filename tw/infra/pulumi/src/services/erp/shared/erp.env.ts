@@ -1,1 +1,3 @@
-export const serviceName = 'erp';
+import { project } from '../../../env/env';
+
+export const service = project.service('erp');

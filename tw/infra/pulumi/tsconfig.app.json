@@ -5,6 +5,14 @@
     "types": ["node"],
     "composite": true
   },
+  "references": [
+    {
+      "path": "../../../utils/infra/tsconfig.json"
+    },
+    {
+      "path": "../../../utils/naming/tsconfig.lib.json"
+    }
+  ],
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
   "include": ["src/**/*.ts"]
 }

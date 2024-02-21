@@ -9,7 +9,8 @@ import { Logger } from 'pino';
 import axios from 'axios';
 import { env } from '../env';
 
-const { API_PATH, maxLivingPage, livingRetry, uploadLivingToServer } = env;
+const { API_PATH, MAX_LIVING_PAGE, LIVING_RETRY, UPLOAD_LIVING_TO_SERVER } =
+  env;
 
 export async function scrapeLiving(logger: Logger) {
   const livingLogger = logger.child({}, { msgPrefix: '[Living] ' });
@@ -19,8 +20,8 @@ export async function scrapeLiving(logger: Logger) {
     data: [],
     scrapedPageCount: 0,
   };
-  for (let j = 0; j < livingRetry; j++) {
-    for (let i = 0; i < maxLivingPage; i++) {
+  for (let j = 0; j < LIVING_RETRY; j++) {
+    for (let i = 0; i < MAX_LIVING_PAGE; i++) {
       if (!livingData.shouldContinue) break;
       livingLogger.info(
         {
@@ -56,7 +57,7 @@ export async function scrapeLiving(logger: Logger) {
       }
       await sleep(getSleepTime());
     }
-    if (livingData.scrapedPageCount === maxLivingPage) {
+    if (livingData.scrapedPageCount === MAX_LIVING_PAGE) {
       break;
     }
     livingData = {
@@ -71,7 +72,7 @@ export async function scrapeLiving(logger: Logger) {
     'Final result',
   );
 
-  if (uploadLivingToServer) {
+  if (UPLOAD_LIVING_TO_SERVER) {
     try {
       const momoResponse = await axios.post(
         API_PATH + '/api/saveScrapeShopee/living',
@@ -90,13 +91,13 @@ export async function scrapeLiving(logger: Logger) {
   }
   // Alert to touch whale if not all keywords scraped
   try {
-    if (livingData.scrapedPageCount !== maxLivingPage) {
+    if (livingData.scrapedPageCount !== MAX_LIVING_PAGE) {
       await sendMsgToTouchWhaleAlertGroup(
-        `居家生活爬蟲結果：${livingData.scrapedPageCount} / ${maxLivingPage}頁，快去看看怎麼了～～`,
+        `居家生活爬蟲結果：${livingData.scrapedPageCount} / ${MAX_LIVING_PAGE}頁，快去看看怎麼了～～`,
       );
     }
   } catch (err) {
     logger.error({ err }, 'Fail to alert to touch whale');
   }
-  return { success: livingData.scrapedPageCount === maxLivingPage };
+  return { success: livingData.scrapedPageCount === MAX_LIVING_PAGE };
 }

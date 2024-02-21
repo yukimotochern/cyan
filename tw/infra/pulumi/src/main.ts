@@ -1,41 +1,100 @@
-import { LocalWorkspace, PulumiFn } from '@pulumi/pulumi/automation';
+import {
+  LocalWorkspace,
+  PulumiFn,
+  InlineProgramArgs,
+  LocalWorkspaceOptions,
+} from '@pulumi/pulumi/automation';
 import * as pulumi from '@pulumi/pulumi';
 import * as k8s from '@pulumi/kubernetes';
-import { pulumiPrefix, stack, pulumiEnv } from './env/env';
-import { setupGithubSecret } from './services/erp/shared/githubSecret';
-import { createErpNameSpace } from './services/erp/shared/namespace';
-import { simpleGit } from 'simple-git';
+import { service as infraService, pulumiEnv, infraEnv } from './env/env';
+import { naming } from '@cyan/utils-naming';
+import {
+  createNameSpace,
+  createGithubSecret,
+  ImageOutputInfo,
+} from '@cyan/utils-infra';
+import { service as erpService } from './services/erp/shared/erp.env';
+import { createScraperCronJob } from './services/erp/scraper/scraper';
+import { component as scraperComponent } from './services/erp/scraper/scraper.env';
+import { stackOutputSchema } from './utils/stackOutput';
 
-const program: PulumiFn = async () => {
+const { GITHUB_REGISTRY, GITHUB_SECRET, GITHUB_USERNAME } = infraEnv;
+
+const stackName = erpService.get('stack');
+
+const program = (async (info: ImageOutputInfo = []) => {
+  const indieCard = naming
+    .organization('yukimoto')
+    .project('indie-card')
+    .stack(infraService.get('stack'));
+
   /* Get kubeconfig */
-  const stackRef = new pulumi.StackReference(`yukimoto/indie-card/${stack}`);
+  const stackRef = new pulumi.StackReference(
+    indieCard.output('pulumiStackReference'),
+  );
   const kubeconfig = stackRef.getOutput('kubeConfigOutput');
-  const kubProvider = new k8s.Provider(`${pulumiPrefix}-kubeconfig`, {
-    kubeconfig,
-  });
-
-  /* Erp Scraper */
-  const { ns } = createErpNameSpace({ kubProvider });
-  const { githubSecret } = setupGithubSecret({ kubProvider, ns });
-};
-
-const deploy = async () => {
-  const localStack = await LocalWorkspace.createOrSelectStack(
+  const kubProvider = new k8s.Provider(
+    infraService.resource('k8s-provider').output('pulumiResourceName'),
     {
-      stackName: stack,
-      projectName: 'indie-card',
-      program,
-    },
-    {
-      envVars: pulumiEnv,
+      kubeconfig,
     },
   );
 
-  const outputs = await localStack.outputs();
+  /* Erp Scraper */
+  const { ns: erpNs } = createNameSpace({
+    kubProvider,
+    namingBuilder: erpService,
+  });
 
-  // await localStack.cancel();
-  // await localStack.destroy();
-  // await localStack.up();
+  const { githubSecret: erpGithubSecret } = createGithubSecret({
+    kubProvider,
+    namingBuilder: erpService.component('github'),
+    namespace: erpNs,
+    GITHUB_SECRET,
+    GITHUB_USERNAME,
+  });
+
+  const { outputInfo: scraperOutput } = await createScraperCronJob({
+    kubProvider,
+    githubSecret: erpGithubSecret,
+    namespace: erpNs,
+    namingBuilder: scraperComponent,
+    GITHUB_USERNAME,
+    GITHUB_SECRET,
+    GITHUB_REGISTRY,
+    imageOutputInfo: info,
+  });
+  return { imageOutputInfo: [...scraperOutput] };
+}) satisfies PulumiFn;
+
+const deploy = async () => {
+  const inlineProgram: InlineProgramArgs = {
+    stackName,
+    projectName: 'tw',
+    program,
+  };
+  const localWorkspaceOptions: LocalWorkspaceOptions = {
+    envVars: pulumiEnv,
+  };
+  let localStack = await LocalWorkspace.createOrSelectStack(
+    inlineProgram,
+    localWorkspaceOptions,
+  );
+  const outputs = await localStack.outputs();
+  const result = stackOutputSchema.parse(outputs);
+  const imageOutputInfo = result.imageOutputInfo?.value;
+  localStack = await LocalWorkspace.createOrSelectStack(
+    {
+      ...inlineProgram,
+      program: () => program(imageOutputInfo),
+    },
+    localWorkspaceOptions,
+  );
+
+  // await localStack.cancel({ onOutput: console.info });
+  // await localStack.destroy({ onOutput: console.info });
+  await localStack.up({ onOutput: console.info });
+  // await localStack.preview({ onOutput: console.info });
 };
 
 deploy();

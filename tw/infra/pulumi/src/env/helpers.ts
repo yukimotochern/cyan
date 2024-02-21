@@ -1,6 +1,7 @@
 import Doppler from '@dopplerhq/node-sdk';
 import * as pulumi from '@pulumi/pulumi';
 import { z } from 'zod';
+import type { GenericNamingBuilder } from '@cyan/utils-naming';
 
 import { logger } from '../utils/logger';
 
@@ -121,32 +122,28 @@ const processEnvDef = {
   },
 } satisfies EnvDef;
 
-export const { DOPPLER_TOKEN, STACK } = parseEnv({
+const { DOPPLER_TOKEN, STACK } = parseEnv({
   data: process.env,
   def: processEnvDef,
 });
 
+export const stack = STACK;
+
 export const getDopplerEnv = async ({
-  appName,
-  serviceName,
-  componentName,
+  naming,
 }: {
-  appName: string;
-  serviceName: string;
-  componentName: string;
+  naming: GenericNamingBuilder;
 }) => {
   const doppler = new Doppler({
     accessToken: DOPPLER_TOKEN,
   });
+  const dopplerProjectName = naming.output('dopplerProjectName');
   try {
-    const data = await doppler.secrets.download(
-      `${appName}-${serviceName}-${componentName}`,
-      STACK,
-    );
+    const data = await doppler.secrets.download(dopplerProjectName, STACK);
     return data;
   } catch (err) {
     logger.error(
-      { err, appName, serviceName, componentName, envName: STACK },
+      { err, dopplerProjectName, envName: STACK },
       'Unable to retrieve doppler env.',
     );
     process.exit(1);

@@ -12,29 +12,28 @@ export const env = z
       .default('15000')
       .transform((str) => parseInt(str)),
     API_PATH: z.string().url().default('https://momotouch.click'),
-    maxLivingPage: z
+    MAX_LIVING_PAGE: z
       .string()
       .default('9')
       .transform((s) => parseInt(s)),
-    doKeyword: z
+    DO_KEYWORD: z
       .literal('') // '' means do without keyword
       .or(z.literal('from server'))
       .or(z.string())
       .default('from server'),
-    keywordRetry: z
+    KEYWORD_RETRY: z
       .string()
       .default('1')
       .transform((s) => parseInt(s)),
-    uploadKeywordToServer: defaultTrueTSchema,
-    doLiving: defaultTrueTSchema,
-    livingRetry: z
+    UPLOAD_KEYWORD_TO_SERVER: defaultTrueTSchema,
+    DO_LIVING: defaultTrueTSchema,
+    LIVING_RETRY: z
       .string()
       .default('1')
       .transform((s) => parseInt(s)),
-    uploadLivingToServer: defaultTrueTSchema,
-    useAutoDownloadedChrome: defaultTrueTSchema,
-    lineChannelAccessToken: z.string(),
-    lineTouchWhaleAlertGroupId: z.string(),
-    zenRowsToken: z.string(),
+    UPLOAD_LIVING_TO_SERVER: defaultTrueTSchema,
+    LINE_CHANNEL_ACCESS_TOKEN: z.string(),
+    LINE_TOUCH_WHALE_ALERT_GROUP_ID: z.string(),
+    ZENROWS_TOKEN: z.string(),
   })
   .parse(process.env);

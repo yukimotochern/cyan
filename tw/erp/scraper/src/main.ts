@@ -5,7 +5,7 @@ import { sendMsgToTouchWhaleAlertGroup } from './utils';
 import { scrapeKeyword } from './modules/keyword';
 import { scrapeLiving } from './modules/living';
 
-const { doLiving, doKeyword } = env;
+const { DO_LIVING, DO_KEYWORD } = env;
 
 (async () => {
   logger.info(
@@ -27,12 +27,12 @@ const { doLiving, doKeyword } = env;
   let keywordSuccess = true;
   let livingSuccess = true;
   /* Living Scraping */
-  if (doLiving) {
+  if (DO_LIVING) {
     livingSuccess = (await scrapeLiving(logger)).success;
   }
 
   /* Keyword Scraping */
-  if (doKeyword) {
+  if (DO_KEYWORD) {
     keywordSuccess = (await scrapeKeyword(logger)).success;
   }
 

@@ -6,17 +6,17 @@ import { Logger, pino } from 'pino';
 import axios from 'axios';
 import { env } from '../env';
 
-const { API_PATH, keywordRetry, doKeyword, uploadKeywordToServer } = env;
+const { API_PATH, KEYWORD_RETRY, DO_KEYWORD, UPLOAD_KEYWORD_TO_SERVER } = env;
 
 const getKeywords = async () => {
   let keywords: string[];
-  if (doKeyword === 'from server') {
+  if (DO_KEYWORD === 'from server') {
     const keywordsResponse = await axios.get(
       API_PATH + '/api/scrapeSchedule/keywords_to_scrape',
     );
     keywords = keywordsSchema.parse(keywordsResponse.data).map((k) => k.name);
   } else {
-    keywords = [...doKeyword.split(',')];
+    keywords = [...DO_KEYWORD.split(',')];
   }
   return keywords;
 };
@@ -30,7 +30,7 @@ const saveKeywordDataToServer = async ({
   keywordLogger: pino.Logger;
   data: unknown;
 }) => {
-  if (uploadKeywordToServer) {
+  if (UPLOAD_KEYWORD_TO_SERVER) {
     const momoResponse = await axios.post(
       API_PATH + '/api/saveScrapeShopee/keyword',
       {
@@ -54,7 +54,7 @@ export async function scrapeKeyword(logger: Logger) {
   keywordLogger.info({ keywords }, 'Get keywords.');
   let keyword = '';
 
-  for (let j = 0; j < keywordRetry; j++) {
+  for (let j = 0; j < KEYWORD_RETRY; j++) {
     for (let i = 0; i < keywords.length; i++) {
       keyword = keywords[i];
       keywordLogger.trace(`Prepare to go to ${keyword}`);

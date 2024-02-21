@@ -8,14 +8,14 @@ import { env } from './env';
 
 const isDev = process.env['NODE_ENV'] === 'development';
 
-const { lineChannelAccessToken, lineTouchWhaleAlertGroupId } = env;
+const { LINE_CHANNEL_ACCESS_TOKEN, LINE_TOUCH_WHALE_ALERT_GROUP_ID } = env;
 
 export const sendMsgToTouchWhaleAlertGroup = async (text: string) => {
   const client = new line.messagingApi.MessagingApiClient({
-    channelAccessToken: lineChannelAccessToken,
+    channelAccessToken: LINE_CHANNEL_ACCESS_TOKEN,
   });
   client.pushMessage({
-    to: lineTouchWhaleAlertGroupId,
+    to: LINE_TOUCH_WHALE_ALERT_GROUP_ID,
     messages: [
       {
         type: 'text',
@@ -41,7 +41,7 @@ export const logger = pino({
 export const sleep = (milliSeconds: number) =>
   new Promise((resolve) => setTimeout(resolve, milliSeconds));
 
-const { SLEEP_TIME, zenRowsToken } = env;
+const { SLEEP_TIME, ZENROWS_TOKEN } = env;
 
 export const getSleepTime = () => SLEEP_TIME + Math.random() * SLEEP_TIME;
 
@@ -56,7 +56,7 @@ export const zenRowsRequestor = async ({
   logger: pino.Logger;
   xhrBodySchema: z.ZodTypeAny;
 }) => {
-  const client = new ZenRows(zenRowsToken);
+  const client = new ZenRows(ZENROWS_TOKEN);
   const maxRetry = 10;
   for (let retry = 0; retry < maxRetry; retry++) {
     try {

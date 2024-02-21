@@ -73,6 +73,7 @@ export const createNamingBuilder: CreateNamingBuilder = ({ info, outputs }) =>
 
 export const naming = createNamingBuilder({
   info: {
+    organization: {},
     project: {},
     stack: {},
     service: {},
@@ -87,6 +88,7 @@ export const naming = createNamingBuilder({
     },
   },
   outputs({
+    organization,
     project = '',
     stack = '',
     service = '',
@@ -99,6 +101,7 @@ export const naming = createNamingBuilder({
       return strArr.filter((s) => !!s).join(joinChar);
     }
     return {
+      pulumiStackReference: joinNonEmpty([organization, project, stack], '/'),
       pulumiResourceName: joinNonEmpty([service, component, resource]),
       k8sNamespace: joinNonEmpty([project, stack, service]),
       k8sMetaName: joinNonEmpty([project, stack, service, component, resource]),

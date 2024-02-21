@@ -1,16 +1,16 @@
+import { z } from 'zod';
+import { naming } from '@cyan/utils-naming';
 import {
-  STACK,
   EnvDef,
   nonEmptyString,
   parseEnv,
   getDopplerEnv,
+  stack as stackFromProcessEnv,
 } from './helpers';
 
-export const projectName = 'tw';
-export const stack = STACK;
-export const serviceName = 'infra';
-export const componentName = 'pulumi';
-export const pulumiPrefix = `${projectName}-${stack}-${serviceName}-${componentName}`;
+export const project = naming.project('tw');
+export const stack = project.stack(stackFromProcessEnv);
+export const service = stack.service('infra');
 
 const envDef = {
   // Pulumi
@@ -35,6 +35,12 @@ const envDef = {
     isSecret: false,
     steps: ['infra'],
   },
+
+  LETS_ENCRYPT_EMAIL: {
+    schema: z.string().email(),
+    isSecret: false,
+    steps: ['infra'],
+  },
   INDIE_CARD_WEB_HOST_DOMAIN: {
     schema: nonEmptyString,
     isSecret: false,
@@ -42,24 +48,22 @@ const envDef = {
   },
 } satisfies EnvDef;
 
-const projectEnv = await getDopplerEnv({
-  appName: projectName,
-  serviceName,
-  componentName,
-});
-
-export const pulumiEnv = parseEnv({
-  data: projectEnv,
-  def: envDef,
-  filter: {
-    steps: ['pulumi'],
-  },
+const rawEnv = await getDopplerEnv({
+  naming: service,
 });
 
 export const infraEnv = parseEnv({
-  data: projectEnv,
+  data: rawEnv,
   def: envDef,
   filter: {
     steps: ['infra'],
+  },
+});
+
+export const pulumiEnv = parseEnv({
+  data: rawEnv,
+  def: envDef,
+  filter: {
+    steps: ['pulumi'],
   },
 });
