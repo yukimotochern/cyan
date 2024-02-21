@@ -152,6 +152,7 @@ const program = (async (info: ImageOutputInfo = []) => {
   return {
     kubeConfigOutput,
     imageOutputInfo: [...gameDbJobsOutputInfo, ...gameNextOutputInfo],
+    isMinikube,
   };
 }) satisfies PulumiFn;
 
@@ -180,7 +181,8 @@ const deploy = async () => {
     localWorkspaceOptions,
   );
 
-  // await localStack.cancel({ onOutput: console.info });
+  // await localStack.refresh();
+  // await localStack.cancel();
   // await localStack.destroy({ onOutput: console.info });
   await localStack.up({ onOutput: console.info });
   // await localStack.preview({ onOutput: console.info });

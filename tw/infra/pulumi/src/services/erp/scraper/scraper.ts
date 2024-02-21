@@ -16,6 +16,7 @@ export const createScraperCronJob = async ({
   GITHUB_USERNAME,
   GITHUB_SECRET,
   GITHUB_REGISTRY,
+  isMinikube,
   imageOutputInfo,
 }: {
   kubProvider?: pulumi.ProviderResource;
@@ -25,6 +26,7 @@ export const createScraperCronJob = async ({
   GITHUB_USERNAME: string;
   GITHUB_SECRET: pulumi.Output<string>;
   GITHUB_REGISTRY: string;
+  isMinikube: boolean;
   imageOutputInfo: ImageOutputInfo;
 }) => {
   const { versionTagToUse, outputInfo, buildImage } =
@@ -45,6 +47,7 @@ export const createScraperCronJob = async ({
         build: {
           context: '.',
           dockerfile: 'tw/erp/scraper/Dockerfile',
+          ...(!isMinikube && { platform: 'linux/amd64' }),
         },
         imageName: image.output('imageName'),
         registry: {
@@ -66,7 +69,7 @@ export const createScraperCronJob = async ({
         namespace: namespace.metadata.name,
       },
       spec: {
-        schedule: '0 17 * * *',
+        schedule: '0 1 * * *',
         jobTemplate: {
           spec: {
             template: {
