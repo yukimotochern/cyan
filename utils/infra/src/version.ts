@@ -101,12 +101,6 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
   }
 
   /* Examine Local Git Repo */
-  logger.trace(
-    {
-      nxProjectName,
-    },
-    'before status',
-  );
   const result = await simpleGit().status({
     '--porcelain': null,
   });
@@ -120,12 +114,6 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
     };
   }
   /* Working tree clean */
-  logger.trace(
-    {
-      nxProjectName,
-    },
-    'before head',
-  );
   const headCommitHash = await simpleGit().revparse('HEAD', {
     '--verify': null,
   });
