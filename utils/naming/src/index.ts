@@ -137,6 +137,7 @@ export const naming = createNamingBuilder({
         stack && `stack:${stack}`,
         service && `service:${service}`,
       ].filter((ob) => !!ob),
+      nxProjectName: `${project}-${service}-${component}`,
     };
   },
 });

@@ -98,33 +98,39 @@ const program = (async (info: ImageOutputInfo = []) => {
     });
 
   /* Game Db Jobs */
-  const { gameDbJobs } = createGameDbJobs({
-    kubProvider,
-    gameDbCluster,
-    gameDbServiceName,
-    namespace: gameNs,
-    namingBuilder: gameDbJobsComponent,
-    githubSecret: gameGithubSecret,
-    GITHUB_REGISTRY,
-    GITHUB_SECRET,
-    GITHUB_USERNAME,
-    isMinikube,
-  });
+  const { gameDbJobs, outputInfo: gameDbJobsOutputInfo } =
+    await createGameDbJobs({
+      kubProvider,
+      gameDbCluster,
+      gameDbServiceName,
+      namespace: gameNs,
+      namingBuilder: gameDbJobsComponent,
+      githubSecret: gameGithubSecret,
+      GITHUB_REGISTRY,
+      GITHUB_SECRET,
+      GITHUB_USERNAME,
+      isMinikube,
+      imageOutputInfo: info,
+      logger,
+    });
 
   /* Game Next */
-  const { gameNextSvc } = createGameNextApp({
-    kubProvider,
-    gameDbCluster,
-    gameDbServiceName,
-    gameDbJobs,
-    namespace: gameNs,
-    namingBuilder: gameNextComponent,
-    githubSecret: gameGithubSecret,
-    GITHUB_REGISTRY,
-    GITHUB_SECRET,
-    GITHUB_USERNAME,
-    isMinikube,
-  });
+  const { gameNextSvc, outputInfo: gameNextOutputInfo } =
+    await createGameNextApp({
+      kubProvider,
+      gameDbCluster,
+      gameDbServiceName,
+      gameDbJobs,
+      namespace: gameNs,
+      namingBuilder: gameNextComponent,
+      githubSecret: gameGithubSecret,
+      GITHUB_REGISTRY,
+      GITHUB_SECRET,
+      GITHUB_USERNAME,
+      isMinikube,
+      imageOutputInfo: info,
+      logger,
+    });
 
   /* Ingress Controller */
   createIngressController({
@@ -147,16 +153,13 @@ const program = (async (info: ImageOutputInfo = []) => {
     INDIE_CARD_WEB_HOST_DOMAIN,
   });
 
-  return { kubeConfigOutput };
+  return {
+    kubeConfigOutput,
+    imageOutputInfo: [...gameDbJobsOutputInfo, ...gameNextOutputInfo],
+  };
 }) satisfies PulumiFn;
 
 const deploy = async () => {
-  await getImageVersionByStackOutputGitAndVersionEnv({
-    outputInfo: [],
-    versionTagEnv: '',
-    nxProjectName: 'indie-card-game-next',
-    logger,
-  });
   const inlineProgram: InlineProgramArgs = {
     stackName,
     projectName: 'indie-card',
@@ -173,7 +176,7 @@ const deploy = async () => {
   const outputs = await localStack.outputs();
   const result = stackOutputSchema.parse(outputs);
   const imageOutputInfo = result.imageOutputInfo?.value;
-  localStack = await LocalWorkspace.selectStack(
+  localStack = await LocalWorkspace.createOrSelectStack(
     {
       ...inlineProgram,
       program: () => program(imageOutputInfo),
@@ -183,7 +186,7 @@ const deploy = async () => {
 
   // await localStack.cancel({ onOutput: console.info });
   // await localStack.destroy({ onOutput: console.info });
-  // await localStack.up({ onOutput: console.info });
+  await localStack.up({ onOutput: console.info });
   // await localStack.preview({ onOutput: console.info });
 };
 

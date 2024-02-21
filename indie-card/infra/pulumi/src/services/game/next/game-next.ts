@@ -2,6 +2,11 @@ import * as k8s from '@pulumi/kubernetes';
 import * as pulumi from '@pulumi/pulumi';
 import * as docker from '@pulumi/docker';
 import { GenericNamingBuilder } from '@cyan/utils-naming';
+import { Logger } from 'pino';
+import {
+  ImageOutputInfo,
+  getImageVersionByStackOutputGitAndVersionEnv,
+} from '@cyan/utils-infra';
 
 import {
   gameNextEnv,
@@ -12,7 +17,7 @@ import {
 
 const { PORT } = gameNextEnv;
 
-export const createGameNextApp = ({
+export const createGameNextApp = async ({
   kubProvider,
   githubSecret,
   gameDbCluster,
@@ -24,6 +29,8 @@ export const createGameNextApp = ({
   GITHUB_SECRET,
   GITHUB_REGISTRY,
   isMinikube,
+  imageOutputInfo,
+  logger,
 }: {
   kubProvider?: pulumi.ProviderResource;
   githubSecret: k8s.core.v1.Secret;
@@ -36,30 +43,42 @@ export const createGameNextApp = ({
   GITHUB_SECRET: pulumi.Output<string>;
   GITHUB_REGISTRY: string;
   isMinikube: boolean;
+  imageOutputInfo: ImageOutputInfo;
+  logger: Logger;
 }) => {
+  const { versionTagToUse, outputInfo, buildImage } =
+    await getImageVersionByStackOutputGitAndVersionEnv({
+      outputInfo: imageOutputInfo,
+      versionTagEnv: version,
+      nxProjectName: namingBuilder.output('nxProjectName'),
+      logger,
+    });
   /* Game-Next Image */
   const image = namingBuilder
     .baseImageRegistry(GITHUB_REGISTRY)
-    .imageVersion(version);
-  const gameNextImage = new docker.Image(
-    namingBuilder.resource('image').output('pulumiResourceName'),
-    {
-      build: {
-        args: {
-          ...gameNextBuildTimeEnv,
+    .imageVersion(versionTagToUse);
+  let gameNextImage: docker.Image | undefined;
+  if (buildImage) {
+    gameNextImage = new docker.Image(
+      namingBuilder.resource('image').output('pulumiResourceName'),
+      {
+        build: {
+          args: {
+            ...gameNextBuildTimeEnv,
+          },
+          context: '.',
+          dockerfile: 'indie-card/game/next/Dockerfile',
+          ...(!isMinikube && { platform: 'linux/amd64' }),
         },
-        context: '.',
-        dockerfile: 'indie-card/game/next/Dockerfile',
-        ...(!isMinikube && { platform: 'linux/amd64' }),
+        imageName: image.output('imageName'),
+        registry: {
+          username: GITHUB_USERNAME,
+          password: GITHUB_SECRET,
+          server: GITHUB_REGISTRY,
+        },
       },
-      imageName: image.output('imageName'),
-      registry: {
-        username: GITHUB_USERNAME,
-        password: GITHUB_SECRET,
-        server: GITHUB_REGISTRY,
-      },
-    },
-  );
+    );
+  }
 
   /* Game-Next Deployment */
   const gameNextDeploymentResource = namingBuilder.resource('deployment');
@@ -84,7 +103,7 @@ export const createGameNextApp = ({
             ],
             containers: [
               {
-                image: gameNextImage.imageName,
+                image: image.output('imageName'),
                 name: namingBuilder
                   .resource('container')
                   .output('k8sContainerName'),
@@ -108,7 +127,11 @@ export const createGameNextApp = ({
     },
     {
       provider: kubProvider,
-      dependsOn: [gameDbCluster, gameDbJobs],
+      dependsOn: [
+        gameDbCluster,
+        gameDbJobs,
+        ...(gameNextImage ? [gameNextImage] : []),
+      ],
     },
   );
 
@@ -135,5 +158,6 @@ export const createGameNextApp = ({
   );
   return {
     gameNextSvc,
+    outputInfo,
   };
 };

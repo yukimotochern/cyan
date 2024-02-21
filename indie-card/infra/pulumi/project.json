@@ -34,7 +34,8 @@
       },
       "configurations": {
         "development": {
-          "buildTarget": "indie-card-infra-pulumi:build:development"
+          "buildTarget": "indie-card-infra-pulumi:build:development",
+          "runtimeArgs": ["--trace-deprecation"]
         },
         "production": {
           "buildTarget": "indie-card-infra-pulumi:build:production"
