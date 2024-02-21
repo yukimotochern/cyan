@@ -33,6 +33,7 @@ import { gameDbEnv } from './services/game/db/db.env';
 import { component as gameDbJobsComponent } from './services/game/db-jobs/db-jobs.env';
 import { component as gameNextComponent } from './services/game/next/game-next.env';
 import { stackOutputSchema } from './utils/stackOutput';
+import { logger } from './utils/logger';
 
 const stackName = stack.get('stack');
 const {
@@ -152,7 +153,9 @@ const program = (async (info: ImageOutputInfo = []) => {
 const deploy = async () => {
   await getImageVersionByStackOutputGitAndVersionEnv({
     outputInfo: [],
-    versionTag: '',
+    versionTagEnv: '',
+    nxProjectName: 'indie-card-game-next',
+    logger,
   });
   const inlineProgram: InlineProgramArgs = {
     stackName,

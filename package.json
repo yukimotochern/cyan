@@ -100,7 +100,6 @@
     "dayjs": "^1.11.10",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.29.3",
-    "execa": "^5.1.1",
     "expo": "50.0.1",
     "expo-splash-screen": "0.26.4",
     "expo-status-bar": "1.11.1",
