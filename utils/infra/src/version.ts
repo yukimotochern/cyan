@@ -26,7 +26,16 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
   nxProjectName: string;
   logger: Logger;
 }) => {
+  console.log('ran');
+  logger.info({}, 'hi');
   if (!['none', ''].includes(versionTagEnv)) {
+    logger.trace(
+      {
+        nxProjectName,
+        versionTagEnv,
+      },
+      'Project use env assigned image tag.',
+    );
     return {
       outputInfo: [],
       versionTagToUse: versionTagEnv,
@@ -42,6 +51,13 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
         `nx show projects --affected --base=${currentProjectOutput.commitHash}`,
       );
       if (!stdout.split('\n').includes(nxProjectName)) {
+        logger.trace(
+          {
+            nxProjectName,
+            currentProjectOutput,
+          },
+          'Project is not affected. Use existing image.',
+        );
         return {
           outputInfo: currentProjectOutput,
           versionTagToUse: currentProjectOutput.versionTag,
@@ -50,14 +66,25 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
       }
     } catch (err) {
       logger.error(
-        'Unable to run nx command to determine whether the project has changes. It could be that output commit hash does not exist in the local git repo.',
         {
           currentProjectOutput,
           err,
         },
+        'Unable to run nx command to determine whether the project has changes. It could be that output commit hash does not exist in the local git repo.',
       );
     }
   }
+  const result = await simpleGit().status({
+    '--porcelain': null,
+  });
+  logger.trace(
+    {
+      result,
+      typeofResult: typeof result,
+    },
+    'result',
+  );
+  return '';
 
   // console.log(r.stdout.split('\n'));
   // console.log(r.stderr);
