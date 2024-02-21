@@ -114,9 +114,7 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
     };
   }
   /* Working tree clean */
-  const headCommitHash = await simpleGit().revparse('HEAD', {
-    '--verify': null,
-  });
+  const headCommitHash = await simpleGit().revparse('HEAD');
 
   return {
     outputInfo: [
