@@ -31,5 +31,4 @@ WORKDIR /app/dist/indie-card/game/next
 
 RUN pnpm install --frozen-lockfile
 
-
 CMD [ "pnpm", "start" ]
