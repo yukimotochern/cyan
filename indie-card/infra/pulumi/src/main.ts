@@ -9,7 +9,6 @@ import {
   createGithubSecret,
   createPostgresDb,
   ImageOutputInfo,
-  getImageVersionByStackOutputGitAndVersionEnv,
 } from '@cyan/utils-infra';
 
 import { createK8sCluster } from './common/cluster/k8s';
@@ -33,7 +32,6 @@ import { gameDbEnv } from './services/game/db/db.env';
 import { component as gameDbJobsComponent } from './services/game/db-jobs/db-jobs.env';
 import { component as gameNextComponent } from './services/game/next/game-next.env';
 import { stackOutputSchema } from './utils/stackOutput';
-import { logger } from './utils/logger';
 
 const stackName = stack.get('stack');
 const {
@@ -111,7 +109,6 @@ const program = (async (info: ImageOutputInfo = []) => {
       GITHUB_USERNAME,
       isMinikube,
       imageOutputInfo: info,
-      logger,
     });
 
   /* Game Next */
@@ -129,7 +126,6 @@ const program = (async (info: ImageOutputInfo = []) => {
       GITHUB_USERNAME,
       isMinikube,
       imageOutputInfo: info,
-      logger,
     });
 
   /* Ingress Controller */

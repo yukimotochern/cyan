@@ -7,7 +7,6 @@ import {
   ImageOutputInfo,
   getImageVersionByStackOutputGitAndVersionEnv,
 } from '@cyan/utils-infra';
-import { Logger } from 'pino';
 
 export const createGameDbJobs = async ({
   kubProvider,
@@ -21,7 +20,6 @@ export const createGameDbJobs = async ({
   GITHUB_REGISTRY,
   isMinikube,
   imageOutputInfo,
-  logger,
 }: {
   kubProvider?: pulumi.ProviderResource;
   githubSecret: k8s.core.v1.Secret;
@@ -34,14 +32,12 @@ export const createGameDbJobs = async ({
   GITHUB_REGISTRY: string;
   isMinikube: boolean;
   imageOutputInfo: ImageOutputInfo;
-  logger: Logger;
 }) => {
   const { versionTagToUse, outputInfo, buildImage } =
     await getImageVersionByStackOutputGitAndVersionEnv({
       outputInfo: imageOutputInfo,
       versionTagEnv: version,
       nxProjectName: namingBuilder.output('nxProjectName'),
-      logger,
     });
   /* Game DB jobs Image */
   const image = namingBuilder

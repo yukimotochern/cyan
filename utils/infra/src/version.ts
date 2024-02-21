@@ -1,9 +1,10 @@
 import { z } from 'zod';
-import { Logger } from 'pino';
+import * as pulumi from '@pulumi/pulumi';
 import { simpleGit } from 'simple-git';
 import { exec as execSync } from 'node:child_process';
 import { promisify } from 'node:util';
 import { randomUUID } from 'node:crypto';
+
 const exec = promisify(execSync);
 
 export const versionHistoryInfo = z.object({
@@ -20,14 +21,12 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
   outputInfo,
   versionTagEnv,
   nxProjectName,
-  logger,
   CI,
   CIRCLE_BUILD_NUM,
 }: {
   outputInfo: ImageOutputInfo;
   versionTagEnv: string;
   nxProjectName: string;
-  logger: Logger;
   CI?: string;
   CIRCLE_BUILD_NUM?: string;
 }): Promise<{
@@ -36,12 +35,8 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
   buildImage: boolean;
 }> => {
   if (!['none', ''].includes(versionTagEnv)) {
-    logger.debug(
-      {
-        nxProjectName,
-        versionTagEnv,
-      },
-      'Project use env assigned image tag.',
+    pulumi.log.info(
+      `Project ${nxProjectName} use env assigned image tag ${versionTagEnv}.`,
     );
     return {
       outputInfo: [],
@@ -59,13 +54,10 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
         `nx show projects --affected --base=${currentProjectOutput.commitHash}`,
       );
       if (!stdout.split('\n').includes(nxProjectName)) {
-        logger.debug(
-          {
-            nxProjectName,
-            currentProjectOutput,
-          },
-          'Project is not affected. Use existing image.',
+        pulumi.log.info(
+          `Project ${nxProjectName} is not affected. Use existing image. ${JSON.stringify(currentProjectOutput)}`,
         );
+
         return {
           outputInfo: [currentProjectOutput],
           versionTagToUse: currentProjectOutput.versionTag,
@@ -82,12 +74,8 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
         }
       }
     } catch (err) {
-      logger.error(
-        {
-          currentProjectOutput,
-          err,
-        },
-        'Unable to run nx command to determine whether the project has changes. It could be that output commit hash does not exist in the local git repo.',
+      pulumi.log.error(
+        `Unable to run nx command to determine whether the project ${nxProjectName} has changes. It could be that output commit hash does not exist in the local git repo. err: ${err}, output: ${JSON.stringify(currentProjectOutput)}`,
       );
     }
   }
@@ -104,7 +92,7 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
   const result = await simpleGit().status({
     '--porcelain': null,
   });
-  logger.trace(result, 'Git status result.');
+  pulumi.log.info(`Git status result. ${JSON.stringify(result)}`);
   if (result.files.length !== 0) {
     /* Working tree not clean */
     return {

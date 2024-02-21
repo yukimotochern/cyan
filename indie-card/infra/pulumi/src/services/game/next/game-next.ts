@@ -2,7 +2,6 @@ import * as k8s from '@pulumi/kubernetes';
 import * as pulumi from '@pulumi/pulumi';
 import * as docker from '@pulumi/docker';
 import { GenericNamingBuilder } from '@cyan/utils-naming';
-import { Logger } from 'pino';
 import {
   ImageOutputInfo,
   getImageVersionByStackOutputGitAndVersionEnv,
@@ -30,7 +29,6 @@ export const createGameNextApp = async ({
   GITHUB_REGISTRY,
   isMinikube,
   imageOutputInfo,
-  logger,
 }: {
   kubProvider?: pulumi.ProviderResource;
   githubSecret: k8s.core.v1.Secret;
@@ -44,14 +42,12 @@ export const createGameNextApp = async ({
   GITHUB_REGISTRY: string;
   isMinikube: boolean;
   imageOutputInfo: ImageOutputInfo;
-  logger: Logger;
 }) => {
   const { versionTagToUse, outputInfo, buildImage } =
     await getImageVersionByStackOutputGitAndVersionEnv({
       outputInfo: imageOutputInfo,
       versionTagEnv: version,
       nxProjectName: namingBuilder.output('nxProjectName'),
-      logger,
     });
   /* Game-Next Image */
   const image = namingBuilder
