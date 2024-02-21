@@ -3,7 +3,7 @@ import pinoCaller from 'pino-caller';
 
 export const logger = pinoCaller(
   pino({
-    level: 'trace',
+    level: 'debug',
     ...(process.env.NODE_ENV !== 'production' && {
       transport: {
         target: 'pino-pretty',
