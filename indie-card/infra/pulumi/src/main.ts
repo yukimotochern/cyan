@@ -186,8 +186,8 @@ const deploy = async () => {
 
   // await localStack.cancel({ onOutput: console.info });
   // await localStack.destroy({ onOutput: console.info });
-  await localStack.up({ onOutput: console.info });
-  // await localStack.preview({ onOutput: console.info });
+  // await localStack.up({ onOutput: console.info });
+  await localStack.preview({ onOutput: console.info });
 };
 
 deploy();
