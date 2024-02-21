@@ -7,12 +7,13 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from 'next-auth';
+import type { Adapter } from 'next-auth/adapters';
 import { orm } from '../db/client';
 
 const { GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET } = env;
 
 export const authOptions: NextAuthOptions = {
-  adapter: DrizzleAdapter(orm),
+  adapter: DrizzleAdapter(orm) as Adapter,
   providers: [
     GoogleProvider({
       clientId: GOOGLE_OAUTH_CLIENT_ID,

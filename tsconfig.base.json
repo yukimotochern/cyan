@@ -5,7 +5,7 @@
     "composite": true,
     "sourceMap": true,
     "declaration": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "strict": true,
     "alwaysStrict": true,
     "noImplicitAny": true,

@@ -31,9 +31,11 @@ const deploy = async () => {
     },
   );
 
+  const outputs = await localStack.outputs();
+
   // await localStack.cancel();
   // await localStack.destroy();
-  await localStack.up();
+  // await localStack.up();
 };
 
 deploy();

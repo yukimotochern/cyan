@@ -1,8 +1,15 @@
-import { LocalWorkspace, PulumiFn } from '@pulumi/pulumi/automation';
+import {
+  InlineProgramArgs,
+  LocalWorkspace,
+  LocalWorkspaceOptions,
+  PulumiFn,
+} from '@pulumi/pulumi/automation';
 import {
   createNameSpace,
   createGithubSecret,
   createPostgresDb,
+  ImageOutputInfo,
+  getImageVersionByStackOutputGitAndVersionEnv,
 } from '@cyan/utils-infra';
 
 import { createK8sCluster } from './common/cluster/k8s';
@@ -25,6 +32,7 @@ import { service as gameService } from './services/game/shared/game.env';
 import { gameDbEnv } from './services/game/db/db.env';
 import { component as gameDbJobsComponent } from './services/game/db-jobs/db-jobs.env';
 import { component as gameNextComponent } from './services/game/next/game-next.env';
+import { stackOutputSchema } from './utils/stackOutput';
 
 const stackName = stack.get('stack');
 const {
@@ -36,7 +44,7 @@ const {
 } = infraEnv;
 const { POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD } = gameDbEnv;
 
-const program: PulumiFn = async () => {
+const program = (async (info: ImageOutputInfo = []) => {
   /* Kubernetes Cluster */
   const { kubProvider, kubeConfigOutput } = createK8sCluster({
     K8S_PROVIDER_NAME,
@@ -56,7 +64,6 @@ const program: PulumiFn = async () => {
   });
 
   /* Game */
-
   /* Game Namespace */
   const { ns: gameNs } = createNameSpace({
     kubProvider,
@@ -140,23 +147,40 @@ const program: PulumiFn = async () => {
   });
 
   return { kubeConfigOutput };
-};
+}) satisfies PulumiFn;
 
 const deploy = async () => {
-  const localStack = await LocalWorkspace.createOrSelectStack(
-    {
-      stackName,
-      projectName: 'indie-card',
-      program,
-    },
-    {
-      envVars: pulumiEnv,
-    },
+  await getImageVersionByStackOutputGitAndVersionEnv({
+    outputInfo: [],
+    versionTag: '',
+  });
+  const inlineProgram: InlineProgramArgs = {
+    stackName,
+    projectName: 'indie-card',
+    program,
+  };
+  const localWorkspaceOptions: LocalWorkspaceOptions = {
+    envVars: pulumiEnv,
+  };
+
+  let localStack = await LocalWorkspace.createOrSelectStack(
+    inlineProgram,
+    localWorkspaceOptions,
   );
-  // const outputs = await localStack.outputs();
+  const outputs = await localStack.outputs();
+  const result = stackOutputSchema.parse(outputs);
+  const imageOutputInfo = result.imageOutputInfo?.value;
+  localStack = await LocalWorkspace.selectStack(
+    {
+      ...inlineProgram,
+      program: () => program(imageOutputInfo),
+    },
+    localWorkspaceOptions,
+  );
+
   // await localStack.cancel({ onOutput: console.info });
   // await localStack.destroy({ onOutput: console.info });
-  await localStack.up({ onOutput: console.info });
+  // await localStack.up({ onOutput: console.info });
   // await localStack.preview({ onOutput: console.info });
 };
 

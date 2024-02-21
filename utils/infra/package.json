@@ -5,7 +5,9 @@
     "tslib": "^2.3.0",
     "@pulumi/pulumi": "^3.95.0",
     "@pulumi/kubernetes": "^4.5.5",
-    "@cyan/utils-naming": "0.0.1"
+    "@cyan/utils-naming": "0.0.1",
+    "zod": "^3.22.4",
+    "simple-git": "^3.22.0"
   },
   "type": "commonjs",
   "main": "./src/index.js",
