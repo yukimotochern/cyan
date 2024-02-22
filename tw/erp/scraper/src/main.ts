@@ -45,7 +45,7 @@ const { DO_LIVING, DO_KEYWORD } = env;
       關鍵字：${keywordSuccess ? '成功' : '失敗'}`,
     );
   } catch (err) {
-    logger.error({ err }, 'Fail to alert to touch whale. QQ~~');
+    logger.error({ err }, 'Fail to alert to touch whale. QQ~~~');
   }
 
   logger.info('Process succeeded.');

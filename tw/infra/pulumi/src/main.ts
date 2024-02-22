@@ -63,7 +63,7 @@ const program = (async (info: ImageOutputInfo = []) => {
     GITHUB_USERNAME,
     GITHUB_SECRET,
     GITHUB_REGISTRY,
-    isMinikube: !!isMinikube,
+    isMinikube,
     imageOutputInfo: info,
   });
   return { imageOutputInfo: [...scraperOutput], isMinikube };
