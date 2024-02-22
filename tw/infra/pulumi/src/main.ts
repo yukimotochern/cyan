@@ -33,7 +33,9 @@ const program = (async (info: ImageOutputInfo = []) => {
     indieCard.output('pulumiStackReference'),
   );
   const kubeconfig = stackRef.getOutput('kubeConfigOutput');
-  const isMinikube = stackRef.getOutput('isMinikube');
+  const isMinikubeFromOutput = stackRef.getOutput('isMinikube');
+  pulumi.log.info(`${typeof isMinikubeFromOutput} ${isMinikubeFromOutput}`);
+  const isMinikube = false;
   const kubProvider = new k8s.Provider(
     infraService.resource('k8s-provider').output('pulumiResourceName'),
     {
@@ -66,7 +68,7 @@ const program = (async (info: ImageOutputInfo = []) => {
     isMinikube: !!isMinikube,
     imageOutputInfo: info,
   });
-  return { imageOutputInfo: [...scraperOutput] };
+  return { imageOutputInfo: [...scraperOutput], isMinikube };
 }) satisfies PulumiFn;
 
 const deploy = async () => {

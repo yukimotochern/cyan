@@ -70,7 +70,7 @@ export const createScraperCronJob = async ({
       },
       spec: {
         timeZone: 'Asia/Taipei',
-        schedule: '0 1 * * *',
+        schedule: '41 10 * * *',
         jobTemplate: {
           spec: {
             template: {
@@ -89,13 +89,15 @@ export const createScraperCronJob = async ({
                     env: [...erpScraperRunTimeK8sEnv],
                   },
                 ],
-                restartPolicy: 'OnFailure',
+                restartPolicy: 'Never',
               },
             },
-            backoffLimit: 2,
+            backoffLimit: 0,
             ttlSecondsAfterFinished: 60 * 60 * 24 * 5,
           },
         },
+        successfulJobsHistoryLimit: 1,
+        failedJobsHistoryLimit: 1,
       },
     },
     {
