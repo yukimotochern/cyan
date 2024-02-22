@@ -47,7 +47,7 @@ export const createScraperCronJob = async ({
         build: {
           context: '.',
           dockerfile: 'tw/erp/scraper/Dockerfile',
-          ...isMinikube.apply((val) => !val && { platform: 'linux/amd64' }),
+          platform: isMinikube.apply((val) => (val ? 'local' : 'linux/amd64')),
         },
         imageName: image.output('imageName'),
         registry: {
@@ -70,7 +70,7 @@ export const createScraperCronJob = async ({
       },
       spec: {
         timeZone: 'Asia/Taipei',
-        schedule: '15 11 * * *',
+        schedule: '32 11 * * *',
         jobTemplate: {
           spec: {
             template: {
