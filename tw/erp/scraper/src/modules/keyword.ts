@@ -72,6 +72,7 @@ export async function scrapeKeyword(logger: Logger) {
         keywordToUse: keyword,
         data,
       });
+      scrapedKeywords.add(keyword);
       keywordLogger.trace(`Go to ${keyword} successfully.`);
       await sleep(getSleepTime());
     }

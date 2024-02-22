@@ -38,7 +38,7 @@ const envDef = {
     steps: ['runTime'],
   },
   DO_KEYWORD: {
-    schema: tfStringSchema,
+    schema: z.string(),
     isSecret: false,
     steps: ['runTime'],
   },

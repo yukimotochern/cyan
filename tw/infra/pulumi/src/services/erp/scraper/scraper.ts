@@ -70,7 +70,7 @@ export const createScraperCronJob = async ({
       },
       spec: {
         timeZone: 'Asia/Taipei',
-        schedule: '32 11 * * *',
+        schedule: '30 10 * * *',
         jobTemplate: {
           spec: {
             template: {
