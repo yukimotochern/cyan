@@ -29,4 +29,4 @@ WORKDIR /app/dist/tw/erp/scraper
 
 RUN pnpm install --frozen-lockfile
 
-CMD [ "pnpm", "start" ]
+CMD [ "node", "main.js" ]
