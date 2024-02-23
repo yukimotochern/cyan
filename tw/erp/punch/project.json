@@ -1,7 +1,7 @@
 {
-  "name": "tw-erp-punch-api",
+  "name": "tw-erp-punch",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "tw/erp/punch-api/src",
+  "sourceRoot": "tw/erp/punch/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -10,12 +10,12 @@
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
-        "outputPath": "dist/tw/erp/punch-api",
+        "outputPath": "dist/tw/erp/punch",
         "format": ["cjs"],
         "bundle": false,
-        "main": "tw/erp/punch-api/src/main.ts",
-        "tsConfig": "tw/erp/punch-api/tsconfig.app.json",
-        "assets": ["tw/erp/punch-api/src/assets"],
+        "main": "tw/erp/punch/src/main.ts",
+        "tsConfig": "tw/erp/punch/tsconfig.app.json",
+        "assets": ["tw/erp/punch/src/assets"],
         "generatePackageJson": true,
         "esbuildOptions": {
           "sourcemap": true,
@@ -41,14 +41,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "tw-erp-punch-api:build"
+        "buildTarget": "tw-erp-punch:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "tw-erp-punch-api:build:development"
+          "buildTarget": "tw-erp-punch:build:development"
         },
         "production": {
-          "buildTarget": "tw-erp-punch-api:build:production"
+          "buildTarget": "tw-erp-punch:build:production"
         }
       }
     },
@@ -57,7 +57,7 @@
     },
     "docker-build": {
       "dependsOn": ["build"],
-      "command": "docker build -f tw/erp/punch-api/Dockerfile . -t tw-erp-punch-api"
+      "command": "docker build -f tw/erp/punch/Dockerfile . -t tw-erp-punch"
     }
   },
   "tags": []

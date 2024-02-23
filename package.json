@@ -6,7 +6,7 @@
     "dev:indie": "docker compose -f ./indie-card/docker-compose.yaml --project-directory . up -d game-db game-next",
     "pnpm:indie": "docker compose -f ./indie-card/docker-compose.yaml --project-directory . run --rm util pnpm",
     "down:indie": "docker compose -f ./indie-card/docker-compose.yaml --project-directory . down",
-    "dev:tw": "docker compose -f ./tw/docker-compose.yaml --project-directory . up -d erp-db erp-punch-api",
+    "dev:tw": "docker compose -f ./tw/docker-compose.yaml --project-directory . up -d erp-db erp-punch",
     "down:tw": "docker compose -f ./tw/docker-compose.yaml --project-directory . down",
     "pnpm:tw": "docker compose -f ./tw/docker-compose.yaml --project-directory . run --rm util pnpm"
   },
