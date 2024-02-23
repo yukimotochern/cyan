@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "tw/erp/db-jobs/src",
   "projectType": "application",
+  "implicitDependencies": ["tw-erp-db"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
@@ -14,7 +15,6 @@
         "outputPath": "dist/tw/erp/db-jobs",
         "main": "tw/erp/db-jobs/src/main.ts",
         "tsConfig": "tw/erp/db-jobs/tsconfig.app.json",
-        "assets": ["tw/erp/db-jobs/src/assets"],
         "webpackConfig": "tw/erp/db-jobs/webpack.config.js"
       },
       "configurations": {
@@ -45,6 +45,18 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f tw/erp/db-jobs/Dockerfile . -t tw-erp-db-jobs"
+    },
+    "generate-schema-migration": {
+      "command": "drizzle-kit generate:pg --config=tw/erp/db-jobs/src/drizzle.config.ts"
+    },
+    "generate-custom-migration": {
+      "command": "drizzle-kit generate:pg --config=tw/erp/db-jobs/src/drizzle.config.ts --custom"
+    },
+    "check-migrations": {
+      "command": "drizzle-kit check:pg --config=tw/erp/db-jobs/src/drizzle.config.ts"
+    },
+    "db-push": {
+      "command": "drizzle-kit push:pg --config=tw/erp/db-jobs/src/drizzle.config.ts && nx watch --projects=tw-erp-db-jobs --verbose --includeDependentProjects -- drizzle-kit push:pg --config=tw/erp/db-jobs/src/drizzle.config.ts"
     }
   },
   "tags": []

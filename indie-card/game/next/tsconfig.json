@@ -2,7 +2,6 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "resolveJsonModule": true,

@@ -1,5 +1,5 @@
 version: "3.9"
-name: indie-card
+name: tw
 services:
   util:
     build:
@@ -10,46 +10,46 @@ services:
       - ./:/app
       - node_modules:/app/node_modules
       - pnpm_store:/pnpm
-  game-db:
+  erp-db:
     image: "postgres:16"
     restart: always
     env_file:
-      - "indie-card/game/db-jobs/.env.docker-compose"
+      - "tw/erp/db-jobs/.env.docker-compose"
     volumes:
-      - "game-db:/var/lib/postgresql/data"
+      - "erp-db:/var/lib/postgresql/data"
     ports:
       - "5432:5432"
-  game-next:
+  erp-punch-api:
     build:
       context: .
       dockerfile: "Dockerfile.compose"
-    command: "pnpm nx run indie-card-game-next:serve:development"
+    command: "pnpm nx run tw-erp-punch-api:serve:development"
     ports:
-      - "4200:4200"
+      - "4201:4201"
     volumes:
       - ./:/app
       - node_modules:/app/node_modules
       - pnpm_store:/pnpm/store
     env_file:
-      - "./indie-card/game/next/.env.docker-compose"
+      - "tw/erp/punch-api/.env.docker-compose"
     depends_on:
-      - game-db
-      - game-db-jobs
-  game-db-jobs:
+      - erp-db
+      - erp-db-jobs
+  erp-db-jobs:
     build:
       context: .
       dockerfile: "Dockerfile.compose"
-    command: "pnpm nx db-push indie-card-game-db-jobs"
+    command: "pnpm nx db-push tw-erp-db-jobs"
     volumes:
       - ./:/app
       - node_modules:/app/node_modules
       - pnpm_store:/pnpm/store
     env_file:
-      - "./indie-card/game/db-jobs/.env.docker-compose"
+      - "tw/erp/db-jobs/.env.docker-compose"
     depends_on:
-      - game-db
+      - erp-db
 
 volumes:
-  game-db:
+  erp-db:
   node_modules:
   pnpm_store:

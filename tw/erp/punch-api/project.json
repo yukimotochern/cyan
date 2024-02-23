@@ -1,0 +1,64 @@
+{
+  "name": "tw-erp-punch-api",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tw/erp/punch-api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/tw/erp/punch-api",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "tw/erp/punch-api/src/main.ts",
+        "tsConfig": "tw/erp/punch-api/tsconfig.app.json",
+        "assets": ["tw/erp/punch-api/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generateLockfile": true,
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "tw-erp-punch-api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "tw-erp-punch-api:build:development"
+        },
+        "production": {
+          "buildTarget": "tw-erp-punch-api:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f tw/erp/punch-api/Dockerfile . -t tw-erp-punch-api"
+    }
+  },
+  "tags": []
+}
