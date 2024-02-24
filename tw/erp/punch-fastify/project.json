@@ -1,7 +1,7 @@
 {
-  "name": "tw-erp-punch",
+  "name": "tw-erp-punch-fastify",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "tw/erp/punch/src",
+  "sourceRoot": "tw/erp/punch-fastify/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -10,12 +10,12 @@
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
-        "outputPath": "dist/tw/erp/punch",
+        "outputPath": "dist/tw/erp/punch-fastify",
         "format": ["cjs"],
         "bundle": false,
-        "main": "tw/erp/punch/src/main.ts",
-        "tsConfig": "tw/erp/punch/tsconfig.app.json",
-        "assets": ["tw/erp/punch/src/assets"],
+        "main": "tw/erp/punch-fastify/src/main.ts",
+        "tsConfig": "tw/erp/punch-fastify/tsconfig.app.json",
+        "assets": ["tw/erp/punch-fastify/src/assets"],
         "generatePackageJson": true,
         "esbuildOptions": {
           "sourcemap": true,
@@ -41,14 +41,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "tw-erp-punch:build"
+        "buildTarget": "tw-erp-punch-fastify:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "tw-erp-punch:build:development"
+          "buildTarget": "tw-erp-punch-fastify:build:development"
         },
         "production": {
-          "buildTarget": "tw-erp-punch:build:production"
+          "buildTarget": "tw-erp-punch-fastify:build:production"
         }
       }
     },
@@ -57,7 +57,7 @@
     },
     "docker-build": {
       "dependsOn": ["build"],
-      "command": "docker build -f tw/erp/punch/Dockerfile . -t tw-erp-punch"
+      "command": "docker build -f tw/erp/punch-fastify/Dockerfile . -t tw-erp-punch"
     }
   },
   "tags": []
