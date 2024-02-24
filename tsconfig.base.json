@@ -31,6 +31,7 @@
       "@cyan/indie-card-game-db": ["indie-card/game/db/src/index.ts"],
       "@cyan/pulumi": ["plugins/pulumi/src/index.ts"],
       "@cyan/tw-erp-db": ["tw/erp/db/src/index.ts"],
+      "@cyan/tw-erp-punch-trpc": ["tw/erp/punch-trpc/src/index.ts"],
       "@cyan/utils-infra": ["utils/infra/src/index.ts"],
       "@cyan/utils-naming": ["utils/naming/src/index.ts"],
       "@cyan/utils-string": ["utils/string/src/index.ts"]

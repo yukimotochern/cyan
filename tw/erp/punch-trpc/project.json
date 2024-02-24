@@ -1,0 +1,22 @@
+{
+  "name": "tw-erp-punch-trpc",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tw/erp/punch-trpc/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/tw/erp/punch-trpc",
+        "main": "tw/erp/punch-trpc/src/index.ts",
+        "tsConfig": "tw/erp/punch-trpc/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  },
+  "tags": []
+}
