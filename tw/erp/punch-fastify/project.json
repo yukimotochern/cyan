@@ -57,7 +57,7 @@
     },
     "docker-build": {
       "dependsOn": ["build"],
-      "command": "docker build -f tw/erp/punch-fastify/Dockerfile . -t tw-erp-punch"
+      "command": "docker build -f tw/erp/punch-fastify/Dockerfile . -t tw-erp-punch-fastify"
     }
   },
   "tags": []
