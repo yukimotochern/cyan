@@ -8,7 +8,7 @@ import {
   createNameSpace,
   createGithubSecret,
   createPostgresDb,
-  ImageOutputInfo,
+  VersionHistory,
 } from '@cyan/utils-infra';
 
 import { createK8sCluster } from './common/cluster/k8s';
@@ -32,6 +32,7 @@ import { gameDbEnv } from './services/game/db/db.env';
 import { component as gameDbJobsComponent } from './services/game/db-jobs/db-jobs.env';
 import { component as gameNextComponent } from './services/game/next/game-next.env';
 import { stackOutputSchema } from './utils/stackOutput';
+import { z } from 'zod';
 
 const stackName = stack.get('stack');
 const {
@@ -43,7 +44,7 @@ const {
 } = infraEnv;
 const { POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD } = gameDbEnv;
 
-const program = (async (info: ImageOutputInfo = []) => {
+const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
   /* Kubernetes Cluster */
   const { kubProvider, kubeConfigOutput } = createK8sCluster({
     K8S_PROVIDER_NAME,
@@ -108,28 +109,26 @@ const program = (async (info: ImageOutputInfo = []) => {
       GITHUB_SECRET,
       GITHUB_USERNAME,
       isMinikube,
-      imageOutputInfo: info,
+      versionHistory:
+        output[gameDbJobsComponent.output('nxProjectName')]?.value,
     });
 
   /* Game Next */
-  const {
-    gameNextSvc,
-    outputInfo: gameNextOutputInfo,
-    tryout,
-  } = await createGameNextApp({
-    kubProvider,
-    gameDbCluster,
-    gameDbServiceName,
-    gameDbJobs,
-    namespace: gameNs,
-    namingBuilder: gameNextComponent,
-    githubSecret: gameGithubSecret,
-    GITHUB_REGISTRY,
-    GITHUB_SECRET,
-    GITHUB_USERNAME,
-    isMinikube,
-    imageOutputInfo: info,
-  });
+  const { gameNextSvc, outputInfo: gameNextOutputInfo } =
+    await createGameNextApp({
+      kubProvider,
+      gameDbCluster,
+      gameDbServiceName,
+      gameDbJobs,
+      namespace: gameNs,
+      namingBuilder: gameNextComponent,
+      githubSecret: gameGithubSecret,
+      GITHUB_REGISTRY,
+      GITHUB_SECRET,
+      GITHUB_USERNAME,
+      isMinikube,
+      versionHistory: output[gameNextComponent.output('nxProjectName')]?.value,
+    });
 
   /* Ingress Controller */
   createIngressController({
@@ -154,12 +153,12 @@ const program = (async (info: ImageOutputInfo = []) => {
 
   return {
     kubeConfigOutput,
-    imageOutputInfo: [...gameDbJobsOutputInfo, ...gameNextOutputInfo],
+    [gameDbJobsComponent.output('nxProjectName')]: gameDbJobsOutputInfo,
+    [gameNextComponent.output('nxProjectName')]: gameNextOutputInfo,
     isMinikube,
     isDnsReady,
     INDIE_CARD_WEB_HOST_DOMAIN,
     clusterIssuer,
-    tryout,
   };
 }) satisfies PulumiFn;
 
@@ -179,11 +178,10 @@ const deploy = async () => {
   );
   const outputs = await localStack.outputs();
   const result = stackOutputSchema.parse(outputs);
-  const imageOutputInfo = result.imageOutputInfo?.value;
   localStack = await LocalWorkspace.createOrSelectStack(
     {
       ...inlineProgram,
-      program: () => program(imageOutputInfo),
+      program: () => program(result),
     },
     localWorkspaceOptions,
   );

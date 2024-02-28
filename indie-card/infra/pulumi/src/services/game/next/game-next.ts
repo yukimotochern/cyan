@@ -3,7 +3,7 @@ import * as pulumi from '@pulumi/pulumi';
 import * as docker from '@pulumi/docker';
 import { GenericNamingBuilder } from '@cyan/utils-naming';
 import {
-  ImageOutputInfo,
+  VersionHistory,
   getImageVersionByStackOutputGitAndVersionEnv,
 } from '@cyan/utils-infra';
 
@@ -28,7 +28,7 @@ export const createGameNextApp = async ({
   GITHUB_SECRET,
   GITHUB_REGISTRY,
   isMinikube,
-  imageOutputInfo,
+  versionHistory,
 }: {
   kubProvider?: pulumi.ProviderResource;
   githubSecret: k8s.core.v1.Secret;
@@ -41,11 +41,11 @@ export const createGameNextApp = async ({
   GITHUB_SECRET: pulumi.Output<string>;
   GITHUB_REGISTRY: string;
   isMinikube: boolean;
-  imageOutputInfo: ImageOutputInfo;
+  versionHistory?: VersionHistory;
 }) => {
   const { versionTagToUse, outputInfo, buildImage } =
     await getImageVersionByStackOutputGitAndVersionEnv({
-      outputInfo: imageOutputInfo,
+      outputInfo: versionHistory,
       versionTagEnv: version,
       nxProjectName: namingBuilder.output('nxProjectName'),
     });
@@ -74,6 +74,11 @@ export const createGameNextApp = async ({
         },
       },
     );
+    if (outputInfo) {
+      outputInfo.versionTag = gameNextImage.imageName.apply(
+        (img) => img.split(':')[1] || '',
+      );
+    }
   }
 
   /* Game-Next Deployment */

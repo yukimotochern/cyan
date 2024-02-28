@@ -1,11 +1,4 @@
 import { z } from 'zod';
-import { imageOutputInfo } from '@cyan/utils-infra';
+import { imageOutput } from '@cyan/utils-infra';
 
-export const stackOutputSchema = z.object({
-  imageOutputInfo: z.optional(
-    z.object({
-      secret: z.boolean(),
-      value: imageOutputInfo,
-    }),
-  ),
-});
+export const stackOutputSchema = z.record(imageOutput);

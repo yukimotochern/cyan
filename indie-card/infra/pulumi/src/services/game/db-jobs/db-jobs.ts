@@ -4,7 +4,7 @@ import * as k8s from '@pulumi/kubernetes';
 import { gameDbJobsRunTimeK8sEnv, version } from './db-jobs.env';
 import { GenericNamingBuilder } from '@cyan/utils-naming';
 import {
-  ImageOutputInfo,
+  VersionHistory,
   getImageVersionByStackOutputGitAndVersionEnv,
 } from '@cyan/utils-infra';
 
@@ -19,7 +19,7 @@ export const createGameDbJobs = async ({
   GITHUB_SECRET,
   GITHUB_REGISTRY,
   isMinikube,
-  imageOutputInfo,
+  versionHistory,
 }: {
   kubProvider?: pulumi.ProviderResource;
   githubSecret: k8s.core.v1.Secret;
@@ -31,11 +31,11 @@ export const createGameDbJobs = async ({
   GITHUB_SECRET: pulumi.Output<string>;
   GITHUB_REGISTRY: string;
   isMinikube: boolean;
-  imageOutputInfo: ImageOutputInfo;
+  versionHistory?: VersionHistory;
 }) => {
   const { versionTagToUse, outputInfo, buildImage } =
     await getImageVersionByStackOutputGitAndVersionEnv({
-      outputInfo: imageOutputInfo,
+      outputInfo: versionHistory,
       versionTagEnv: version,
       nxProjectName: namingBuilder.output('nxProjectName'),
     });
@@ -61,6 +61,11 @@ export const createGameDbJobs = async ({
         },
       },
     );
+    if (outputInfo) {
+      outputInfo.versionTag = gameDbJobsImage.imageName.apply(
+        (img) => img.split(':')[1] || '',
+      );
+    }
   }
 
   /* Game Db Jobs */

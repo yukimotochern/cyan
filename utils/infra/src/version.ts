@@ -13,9 +13,14 @@ export const versionHistoryInfo = z.object({
   versionTag: z.string(),
 });
 
-export const imageOutputInfo = z.array(versionHistoryInfo);
+export const imageOutput = z.optional(
+  z.object({
+    secret: z.boolean(),
+    value: versionHistoryInfo,
+  }),
+);
 
-export type ImageOutputInfo = z.infer<typeof imageOutputInfo>;
+export type VersionHistory = z.infer<typeof versionHistoryInfo>;
 
 export const getImageVersionByStackOutputGitAndVersionEnv = async ({
   outputInfo,
@@ -24,13 +29,17 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
   CI,
   CIRCLE_BUILD_NUM,
 }: {
-  outputInfo: ImageOutputInfo;
+  outputInfo?: VersionHistory;
   versionTagEnv: string;
   nxProjectName: string;
   CI?: string;
   CIRCLE_BUILD_NUM?: string;
 }): Promise<{
-  outputInfo: ImageOutputInfo;
+  outputInfo?: {
+    [k in keyof VersionHistory]: k extends 'versionTag'
+      ? pulumi.Output<VersionHistory[k]> | VersionHistory[k]
+      : VersionHistory[k];
+  };
   versionTagToUse: string;
   buildImage: boolean;
 }> => {
@@ -39,34 +48,30 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
       `Project ${nxProjectName} use env assigned image tag ${versionTagEnv}.`,
     );
     return {
-      outputInfo: [],
       versionTagToUse: versionTagEnv,
       buildImage: false,
     };
   }
-  const currentProjectOutput = outputInfo.find(
-    (info) => info.nxProjectName === nxProjectName,
-  );
   let localBuildNumber = 0;
-  if (currentProjectOutput && currentProjectOutput.commitHash) {
+  if (outputInfo && outputInfo.commitHash) {
     try {
       const { stdout } = await exec(
-        `nx show projects --affected --base=${currentProjectOutput.commitHash}`,
+        `nx show projects --affected --base=${outputInfo.commitHash}`,
       );
       if (!stdout.split('\n').includes(nxProjectName)) {
         pulumi.log.info(
-          `Project ${nxProjectName} is not affected. Use existing image. ${JSON.stringify(currentProjectOutput)}`,
+          `Project ${nxProjectName} is not affected. Use existing image. ${JSON.stringify(outputInfo)}`,
         );
 
         return {
-          outputInfo: [currentProjectOutput],
-          versionTagToUse: currentProjectOutput.versionTag,
+          outputInfo,
+          versionTagToUse: outputInfo.versionTag,
           buildImage: false,
         };
       }
       if (!(CI && CIRCLE_BUILD_NUM)) {
         const match = /^local-(?<localBuildNumber>[0-9]+)/.exec(
-          currentProjectOutput.versionTag,
+          outputInfo.versionTag,
         );
         if (match && match.groups) {
           const parsedNumber = Number(match.groups['localBuildNumber']);
@@ -75,7 +80,7 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
       }
     } catch (err) {
       pulumi.log.error(
-        `Unable to run nx command to determine whether the project ${nxProjectName} has changes. It could be that output commit hash does not exist in the local git repo. err: ${err}, output: ${JSON.stringify(currentProjectOutput)}`,
+        `Unable to run nx command to determine whether the project ${nxProjectName} has changes. It could be that output commit hash does not exist in the local git repo. err: ${err}, output: ${JSON.stringify(outputInfo)}`,
       );
     }
   }
@@ -96,7 +101,6 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
   if (result.files.length !== 0) {
     /* Working tree not clean */
     return {
-      outputInfo: [],
       versionTagToUse,
       buildImage: true,
     };
@@ -105,13 +109,11 @@ export const getImageVersionByStackOutputGitAndVersionEnv = async ({
   const headCommitHash = await simpleGit().revparse('HEAD');
 
   return {
-    outputInfo: [
-      {
-        nxProjectName,
-        commitHash: headCommitHash,
-        versionTag: versionTagToUse,
-      },
-    ],
+    outputInfo: {
+      nxProjectName,
+      commitHash: headCommitHash,
+      versionTag: versionTagToUse,
+    },
     versionTagToUse,
     buildImage: true,
   };
