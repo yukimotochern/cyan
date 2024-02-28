@@ -1,7 +1,6 @@
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
-import superjson from 'superjson';
 
 import { type AppRouter } from '../server/root';
 
@@ -21,7 +20,6 @@ export const api: ReturnType<typeof createTRPCNext<AppRouter>> =
     config(opts) {
       const { ctx } = opts;
       return {
-        transformer: superjson,
         links: [
           loggerLink({
             enabled: (opts) =>
