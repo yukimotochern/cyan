@@ -12,6 +12,7 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
+    "noImplicitOverride": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
     "strictPropertyInitialization": true,
@@ -28,6 +29,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "*": ["*", "dist/*", "out-tsc/*"],
       "@cyan/indie-card-game-db": ["indie-card/game/db/src/index.ts"],
       "@cyan/pulumi": ["plugins/pulumi/src/index.ts"],
       "@cyan/tw-erp-db": ["tw/erp/db/src/index.ts"],

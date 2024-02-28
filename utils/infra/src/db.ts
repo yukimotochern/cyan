@@ -19,7 +19,7 @@ export const createPostgresDb = ({
   githubSecret: k8s.core.v1.Secret;
   certManagerHelmRelease?: k8s.helm.v3.Release;
   clusterIssuer?: k8s.apiextensions.CustomResource;
-  cloudNativePgHelmRelease: k8s.helm.v3.Release;
+  cloudNativePgHelmRelease?: k8s.helm.v3.Release;
   namespace: k8s.core.v1.Namespace;
   namingBuilder: GenericNamingBuilder;
   POSTGRES_DB: string;
@@ -147,8 +147,8 @@ export const createPostgresDb = ({
     {
       provider: kubProvider,
       dependsOn: [
-        cloudNativePgHelmRelease,
         ...(certManagerHelmRelease ? [certManagerHelmRelease] : []),
+        ...(cloudNativePgHelmRelease ? [cloudNativePgHelmRelease] : []),
         ...(dbSecrets ? [dbSecrets] : []),
       ],
     },

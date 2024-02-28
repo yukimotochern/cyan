@@ -5,35 +5,24 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/esbuild:esbuild",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "platform": "node",
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/tw/erp/punch-fastify",
-        "format": ["cjs"],
-        "bundle": false,
         "main": "tw/erp/punch-fastify/src/main.ts",
         "tsConfig": "tw/erp/punch-fastify/tsconfig.app.json",
         "assets": ["tw/erp/punch-fastify/src/assets"],
-        "generatePackageJson": true,
-        "esbuildOptions": {
-          "sourcemap": true,
-          "outExtension": {
-            ".js": ".js"
-          }
-        }
+        "webpackConfig": "tw/erp/punch-fastify/webpack.config.js"
       },
       "configurations": {
         "development": {},
         "production": {
+          "generatePackageJson": true,
           "generateLockfile": true,
-          "esbuildOptions": {
-            "sourcemap": false,
-            "outExtension": {
-              ".js": ".js"
-            }
-          }
+          "optimization": true
         }
       }
     },
@@ -41,7 +30,8 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "tw-erp-punch-fastify:build"
+        "buildTarget": "tw-erp-punch-fastify:build",
+        "inspect": false
       },
       "configurations": {
         "development": {

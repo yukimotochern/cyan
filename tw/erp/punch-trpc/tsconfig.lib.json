@@ -1,10 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../../dist/out-tsc",
+    "outDir": "../../../dist",
     "declaration": true,
+    "composite": true,
     "types": ["node"]
   },
+  "references": [
+    {
+      "path": "../db/tsconfig.lib.json"
+    }
+  ],
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]
 }

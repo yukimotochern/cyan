@@ -1,11 +1,5 @@
 {
   "name": "@cyan/tw-erp-db",
   "version": "0.0.1",
-  "dependencies": {
-    "tslib": "^2.3.0",
-    "drizzle-orm": "^0.29.3"
-  },
-  "type": "commonjs",
-  "main": "./src/index.js",
-  "typings": "./src/index.d.ts"
+  "type": "commonjs"
 }

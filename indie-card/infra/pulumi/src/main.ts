@@ -153,6 +153,9 @@ const program = (async (info: ImageOutputInfo = []) => {
     kubeConfigOutput,
     imageOutputInfo: [...gameDbJobsOutputInfo, ...gameNextOutputInfo],
     isMinikube,
+    isDnsReady,
+    INDIE_CARD_WEB_HOST_DOMAIN,
+    clusterIssuer,
   };
 }) satisfies PulumiFn;
 

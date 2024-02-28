@@ -1,6 +1,5 @@
 import { initTRPC, TRPCError, type inferAsyncReturnType } from '@trpc/server';
 import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
-import superjson from 'superjson';
 import { ZodError } from 'zod';
 
 import { getServerAuthSession } from './services/auth/auth';
@@ -20,7 +19,6 @@ export const createContext = async (opts: CreateNextContextOptions) => {
 export type Context = inferAsyncReturnType<typeof createContext>;
 
 const t = initTRPC.context<typeof createContext>().create({
-  transformer: superjson,
   errorFormatter({ shape, error }) {
     return {
       ...shape,

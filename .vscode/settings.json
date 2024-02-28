@@ -10,6 +10,7 @@
     "initdb",
     "pmmmwh",
     "revparse",
+    "tmpfs",
     "zenrows"
   ]
 }
