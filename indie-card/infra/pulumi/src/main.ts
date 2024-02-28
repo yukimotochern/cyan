@@ -109,8 +109,7 @@ const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
       GITHUB_SECRET,
       GITHUB_USERNAME,
       isMinikube,
-      versionHistory:
-        output[gameDbJobsComponent.output('nxProjectName')]?.value,
+      versionHistory: output['indie-card-game-db-jobs']?.value,
     });
 
   /* Game Next */
@@ -127,7 +126,7 @@ const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
       GITHUB_SECRET,
       GITHUB_USERNAME,
       isMinikube,
-      versionHistory: output[gameNextComponent.output('nxProjectName')]?.value,
+      versionHistory: output['indie-card-game-next']?.value,
     });
 
   /* Ingress Controller */
@@ -153,8 +152,8 @@ const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
 
   return {
     kubeConfigOutput,
-    [gameDbJobsComponent.output('nxProjectName')]: gameDbJobsOutputInfo,
-    [gameNextComponent.output('nxProjectName')]: gameNextOutputInfo,
+    'indie-card-game-db-jobs': gameDbJobsOutputInfo,
+    'indie-card-game-next': gameNextOutputInfo,
     isMinikube,
     isDnsReady,
     INDIE_CARD_WEB_HOST_DOMAIN,
