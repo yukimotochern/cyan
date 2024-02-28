@@ -112,21 +112,24 @@ const program = (async (info: ImageOutputInfo = []) => {
     });
 
   /* Game Next */
-  const { gameNextSvc, outputInfo: gameNextOutputInfo } =
-    await createGameNextApp({
-      kubProvider,
-      gameDbCluster,
-      gameDbServiceName,
-      gameDbJobs,
-      namespace: gameNs,
-      namingBuilder: gameNextComponent,
-      githubSecret: gameGithubSecret,
-      GITHUB_REGISTRY,
-      GITHUB_SECRET,
-      GITHUB_USERNAME,
-      isMinikube,
-      imageOutputInfo: info,
-    });
+  const {
+    gameNextSvc,
+    outputInfo: gameNextOutputInfo,
+    tryout,
+  } = await createGameNextApp({
+    kubProvider,
+    gameDbCluster,
+    gameDbServiceName,
+    gameDbJobs,
+    namespace: gameNs,
+    namingBuilder: gameNextComponent,
+    githubSecret: gameGithubSecret,
+    GITHUB_REGISTRY,
+    GITHUB_SECRET,
+    GITHUB_USERNAME,
+    isMinikube,
+    imageOutputInfo: info,
+  });
 
   /* Ingress Controller */
   createIngressController({
@@ -156,6 +159,7 @@ const program = (async (info: ImageOutputInfo = []) => {
     isDnsReady,
     INDIE_CARD_WEB_HOST_DOMAIN,
     clusterIssuer,
+    tryout,
   };
 }) satisfies PulumiFn;
 
