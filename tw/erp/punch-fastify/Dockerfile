@@ -23,7 +23,8 @@ FROM ${BASE_IMAGE}
 
 RUN timedatectl set-timezone Asia/Taipei
 
-COPY --from=Build /app/dist/tw/erp/punch-fastify /app/dist/tw/erp/punch-fastify
+COPY --from=Build /app/dist/tw/erp/punch-fastify/package.json /app/dist/tw/erp/punch-fastify/package.json
+COPY --from=Build /app/dist/tw/erp/punch-fastify/pnpm-lock.yaml /app/dist/tw/erp/punch-fastify/pnpm-lock.yaml
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -33,5 +34,7 @@ RUN corepack enable
 WORKDIR /app/dist/tw/erp/punch-fastify
 
 RUN pnpm install --frozen-lockfile
+
+COPY --from=Build /app/dist/tw/erp/punch-fastify /app/dist/tw/erp/punch-fastify
 
 CMD [ "node", "main.js" ]

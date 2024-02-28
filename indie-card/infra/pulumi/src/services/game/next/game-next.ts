@@ -155,8 +155,6 @@ export const createGameNextApp = async ({
   return {
     gameNextSvc,
     outputInfo,
-    tryout: pulumi
-      .output(gameNextImage)
-      .apply((img) => (img ? img.imageName + '1' : 'no')),
+    tryout: gameNextImage ? gameNextImage.imageName.apply((n) => n + 1) : 'no',
   };
 };

@@ -20,7 +20,8 @@ COPY . .
 RUN pnpm nx run indie-card-game-next:build:production --verbose
 
 FROM ${BASE_IMAGE}
-COPY --from=Build /app/dist/indie-card/game/next /app/dist/indie-card/game/next
+COPY --from=Build /app/dist/indie-card/game/next/package.json /app/dist/indie-card/game/next/package.json
+COPY --from=Build /app/dist/indie-card/game/next/pnpm-lock.yaml /app/dist/indie-card/game/next/pnpm-lock.yaml
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -30,5 +31,7 @@ RUN corepack enable
 WORKDIR /app/dist/indie-card/game/next
 
 RUN pnpm install --frozen-lockfile
+
+COPY --from=Build /app/dist/indie-card/game/next /app/dist/indie-card/game/next
 
 CMD [ "pnpm", "start" ]
