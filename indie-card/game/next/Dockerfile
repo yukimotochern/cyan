@@ -1,6 +1,8 @@
 ARG BASE_IMAGE=node:20.11.1
 FROM ${BASE_IMAGE} AS Build
 
+RUN apcccccckjsdlkfjd
+
 WORKDIR /app
 
 ENV PNPM_HOME="/pnpm"
