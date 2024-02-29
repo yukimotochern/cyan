@@ -97,6 +97,10 @@ export const createErpDbJobs = async ({
                     name: 'DATABASE_HOST',
                     value: pulumi.interpolate`${dbServiceName}.${dbCluster.metadata.namespace}`,
                   },
+                  {
+                    name: 'IS_KUBERNETES',
+                    value: 'true',
+                  },
                 ],
               },
             ],

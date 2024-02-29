@@ -3,7 +3,7 @@ import { FastifyServerOptions } from 'fastify';
 import pino from 'pino';
 import pinoCaller from 'pino-caller';
 
-const isDev = process.env['NODE_ENV'] !== 'production';
+const isDev = process.env['IS_KUBERNETES'] !== 'true';
 
 export const logger = pinoCaller(
   pino({
