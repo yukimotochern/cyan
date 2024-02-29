@@ -160,6 +160,5 @@ export const createGameNextApp = async ({
   return {
     gameNextSvc,
     outputInfo,
-    tryout: gameNextImage ? gameNextImage.imageName.apply((n) => n + 1) : 'no',
   };
 };

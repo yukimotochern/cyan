@@ -95,7 +95,10 @@ export const createPostgresDb = ({
       {
         dependsOn: [
           ...(certManagerHelmRelease ? [certManagerHelmRelease] : []),
-          ...(clusterIssuer ? [clusterIssuer] : []),
+          ...(clusterIssuer &&
+          clusterIssuer instanceof k8s.apiextensions.CustomResource
+            ? [clusterIssuer]
+            : []),
         ],
         provider: kubProvider,
       },

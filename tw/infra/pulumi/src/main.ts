@@ -20,7 +20,10 @@ import { component as scraperComponent } from './services/erp/scraper/scraper.en
 import { component as erpDbJobsComponent } from './services/erp/db-jobs/db-jobs.env';
 import { stackOutputSchema } from './utils/stackOutput';
 import { erpDbEnv } from './services/erp/db/db.env';
+import { component as erpPunchFastifyComponent } from './services/erp/punch-fastify/punch-fastify.env';
 import { createErpDbJobs } from './services/erp/db-jobs/db-jobs';
+import { createPunchFastifyApp } from './services/erp/punch-fastify/punch-fastify';
+import { createErpIngress } from './services/erp/shared/ingress';
 
 const { GITHUB_REGISTRY, GITHUB_SECRET, GITHUB_USERNAME } = infraEnv;
 
@@ -95,26 +98,54 @@ const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
     });
 
   /* Erp Db Jobs */
-  const { dbJobs, outputInfo: erpDbJobsOutputInfo } = await createErpDbJobs({
-    kubProvider,
-    dbCluster: erpDbCluster,
-    dbServiceName: erpDbServiceName,
-    namespace: erpNs,
-    namingBuilder: erpDbJobsComponent,
-    githubSecret: erpGithubSecret,
-    GITHUB_REGISTRY,
-    GITHUB_SECRET,
-    GITHUB_USERNAME,
-    isMinikube,
-    versionHistory: output['tw-erp-db-jobs']?.value,
-  });
+  const { dbJobs: erpDbJobs, outputInfo: erpDbJobsOutputInfo } =
+    await createErpDbJobs({
+      kubProvider,
+      dbCluster: erpDbCluster,
+      dbServiceName: erpDbServiceName,
+      namespace: erpNs,
+      namingBuilder: erpDbJobsComponent,
+      githubSecret: erpGithubSecret,
+      GITHUB_REGISTRY,
+      GITHUB_SECRET,
+      GITHUB_USERNAME,
+      isMinikube,
+      versionHistory: output['tw-erp-db-jobs']?.value,
+    });
 
   /* Erp Punch Fastify */
+  const { svc: erpPunchFastifySvc, outputInfo: erpPunchFastifyOutputInfo } =
+    await createPunchFastifyApp({
+      kubProvider,
+      dbCluster: erpDbCluster,
+      dbServiceName: erpDbServiceName,
+      dbJobs: erpDbJobs,
+      namespace: erpNs,
+      namingBuilder: erpPunchFastifyComponent,
+      githubSecret: erpGithubSecret,
+      GITHUB_REGISTRY,
+      GITHUB_SECRET,
+      GITHUB_USERNAME,
+      isMinikube,
+      versionHistory: output['tw-erp-punch-fastify']?.value,
+    });
+
+  createErpIngress({
+    kubProvider,
+    svc: erpPunchFastifySvc,
+    clusterIssuer,
+    namespace: erpNs,
+    namingBuilder: erpService,
+    isMinikube,
+    isDnsReady,
+    INDIE_CARD_WEB_HOST_DOMAIN,
+  });
 
   return {
     isMinikube,
     'tw-erp-scraper': scraperOutput,
     'tw-erp-db-jobs': erpDbJobsOutputInfo,
+    'tw-erp-punch-fastify': erpPunchFastifyOutputInfo,
   };
 }) satisfies PulumiFn;
 

@@ -55,14 +55,14 @@ const envDef = {
   },
 } satisfies EnvDef;
 
-export const erpDbJobsEnv = parseEnv({
+export const erpPunchFastifyEnv = parseEnv({
   data: rawEnv,
   def: envDef,
 });
 
-export const version = erpDbJobsEnv.VERSION;
+export const version = erpPunchFastifyEnv.VERSION;
 
-export const erpScraperRunTimeK8sEnv = mapEnvToK8sEnv(
+export const erpPunchFastifyRunTimeK8sEnv = mapEnvToK8sEnv(
   parseEnv({
     data: rawEnv,
     def: envDef,
@@ -72,7 +72,7 @@ export const erpScraperRunTimeK8sEnv = mapEnvToK8sEnv(
   }),
 );
 
-export const erpScraperBuildTimeK8sEnv = mapEnvToK8sEnv(
+export const erpPunchFastifyBuildTimeK8sEnv = mapEnvToK8sEnv(
   parseEnv({
     data: rawEnv,
     def: envDef,

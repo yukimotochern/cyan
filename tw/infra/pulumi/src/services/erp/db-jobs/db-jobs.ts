@@ -50,7 +50,7 @@ export const createErpDbJobs = async ({
       {
         build: {
           context: '.',
-          dockerfile: 'indie-card/game/db-jobs/Dockerfile',
+          dockerfile: 'tw/erp/db-jobs/Dockerfile',
           ...(!isMinikube && { platform: 'linux/amd64' }),
         },
         imageName: image.output('imageName'),
