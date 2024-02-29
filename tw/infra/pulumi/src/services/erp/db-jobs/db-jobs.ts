@@ -1,16 +1,18 @@
 import * as pulumi from '@pulumi/pulumi';
-import * as k8s from '@pulumi/kubernetes';
 import * as docker from '@pulumi/docker';
+import * as k8s from '@pulumi/kubernetes';
+import { version, erpDbJobsRunTimeK8sEnv } from './db-jobs.env';
 import { GenericNamingBuilder } from '@cyan/utils-naming';
 import {
   VersionHistory,
   getImageVersionByStackOutputGitAndVersionEnv,
 } from '@cyan/utils-infra';
-import { version, erpScraperRunTimeK8sEnv } from './scraper.env';
 
-export const createScraperCronJob = async ({
+export const createErpDbJobs = async ({
   kubProvider,
   githubSecret,
+  dbCluster,
+  dbServiceName,
   namespace,
   namingBuilder,
   GITHUB_USERNAME,
@@ -21,12 +23,14 @@ export const createScraperCronJob = async ({
 }: {
   kubProvider?: pulumi.ProviderResource;
   githubSecret: k8s.core.v1.Secret;
+  dbCluster: k8s.apiextensions.CustomResource;
+  dbServiceName: pulumi.Output<string>;
   namespace: k8s.core.v1.Namespace;
   namingBuilder: GenericNamingBuilder;
   GITHUB_USERNAME: string;
   GITHUB_SECRET: pulumi.Output<string>;
   GITHUB_REGISTRY: string;
-  isMinikube: pulumi.Output<boolean>;
+  isMinikube: boolean;
   versionHistory?: VersionHistory;
 }) => {
   const { versionTagToUse, outputInfo, buildImage } =
@@ -35,19 +39,19 @@ export const createScraperCronJob = async ({
       versionTagEnv: version,
       nxProjectName: namingBuilder.output('nxProjectName'),
     });
-  /* Image */
+  /* DB jobs Image */
   const image = namingBuilder
     .baseImageRegistry(GITHUB_REGISTRY)
     .imageVersion(versionTagToUse);
-  let scraperImage: docker.Image | undefined;
+  let dbJobsImage: docker.Image | undefined;
   if (buildImage) {
-    scraperImage = new docker.Image(
+    dbJobsImage = new docker.Image(
       namingBuilder.resource('image').output('pulumiResourceName'),
       {
         build: {
           context: '.',
-          dockerfile: 'tw/erp/scraper/Dockerfile',
-          platform: isMinikube.apply((val) => (val ? 'local' : 'linux/amd64')),
+          dockerfile: 'indie-card/game/db-jobs/Dockerfile',
+          ...(!isMinikube && { platform: 'linux/amd64' }),
         },
         imageName: image.output('imageName'),
         registry: {
@@ -58,59 +62,55 @@ export const createScraperCronJob = async ({
       },
     );
     if (outputInfo) {
-      outputInfo.versionTag = scraperImage.imageName.apply(
+      outputInfo.versionTag = dbJobsImage.imageName.apply(
         (img) => img.split(':')[1] || '',
       );
     }
   }
-  /* CronJob */
-  const scraperCronJobResource = namingBuilder.resource('cron-job');
-  new k8s.batch.v1.CronJob(
-    scraperCronJobResource.output('pulumiResourceName'),
+
+  /* Game Db Jobs */
+  const dbJobsResource = namingBuilder.resource('job');
+  const dbJobs = new k8s.batch.v1.Job(
+    dbJobsResource.output('pulumiResourceName'),
     {
       metadata: {
-        name: scraperCronJobResource.output('k8sMetaName'),
-        labels: scraperCronJobResource.output('k8sLabel'),
         namespace: namespace.metadata.name,
+        labels: dbJobsResource.output('k8sLabel'),
       },
       spec: {
-        timeZone: 'Asia/Taipei',
-        schedule: '30 10 * * *',
-        jobTemplate: {
+        template: {
           spec: {
-            template: {
-              spec: {
-                imagePullSecrets: [
-                  {
-                    name: githubSecret.metadata.name,
-                  },
-                ],
-                containers: [
-                  {
-                    name: namingBuilder
-                      .resource('container')
-                      .output('k8sContainerName'),
-                    image: image.output('imageName'),
-                    env: [...erpScraperRunTimeK8sEnv],
-                  },
-                ],
-                restartPolicy: 'Never',
+            imagePullSecrets: [
+              {
+                name: githubSecret.metadata.name,
               },
-            },
-            backoffLimit: 0,
-            ttlSecondsAfterFinished: 60 * 60 * 24 * 5,
+            ],
+            containers: [
+              {
+                name: namingBuilder
+                  .resource('container')
+                  .output('k8sContainerName'),
+                image: image.output('imageName'),
+                env: [
+                  ...erpDbJobsRunTimeK8sEnv,
+                  {
+                    name: 'DATABASE_HOST',
+                    value: pulumi.interpolate`${dbServiceName}.${dbCluster.metadata.namespace}`,
+                  },
+                ],
+              },
+            ],
+            restartPolicy: 'Never',
           },
         },
-        successfulJobsHistoryLimit: 1,
-        failedJobsHistoryLimit: 1,
+        backoffLimit: 3,
+        ttlSecondsAfterFinished: 60 * 60 * 24 * 5,
       },
     },
     {
       provider: kubProvider,
-      dependsOn: scraperImage && [scraperImage],
+      dependsOn: [dbCluster, ...(dbJobsImage ? [dbJobsImage] : [])],
     },
   );
-  return {
-    outputInfo,
-  };
+  return { dbJobs, outputInfo };
 };

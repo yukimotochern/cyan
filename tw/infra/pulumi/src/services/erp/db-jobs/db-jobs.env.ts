@@ -8,7 +8,7 @@ import {
 } from '../../../env/helpers';
 import { service } from '../shared/erp.env';
 
-export const component = service.component('punch-fastify');
+export const component = service.component('db-jobs');
 
 const rawEnv = await getDopplerEnv({
   naming: component,
@@ -21,26 +21,14 @@ const envDef = {
     isSecret: false,
     steps: ['infra'],
   },
-  // Server
-  PORT: {
-    schema: nonEmptyString,
+  // Run time
+  ACTION: {
+    schema: z.union([
+      z.literal('migration'),
+      z.literal('push'),
+      z.literal('none'),
+    ]),
     isSecret: false,
-    steps: ['runTime'],
-  },
-  HOST: {
-    schema: nonEmptyString,
-    isSecret: false,
-    steps: ['runTime'],
-  },
-  // Database
-  DATABASE_PORT: {
-    schema: nonEmptyString,
-    isSecret: false,
-    steps: ['runTime'],
-  },
-  DATABASE_USER: {
-    schema: nonEmptyString,
-    isSecret: true,
     steps: ['runTime'],
   },
   DATABASE_DB_NAME: {
@@ -53,6 +41,16 @@ const envDef = {
     isSecret: true,
     steps: ['runTime'],
   },
+  DATABASE_USER: {
+    schema: nonEmptyString,
+    isSecret: true,
+    steps: ['runTime'],
+  },
+  DATABASE_PORT: {
+    schema: nonEmptyString,
+    isSecret: false,
+    steps: ['runTime'],
+  },
 } satisfies EnvDef;
 
 export const erpDbJobsEnv = parseEnv({
@@ -60,9 +58,10 @@ export const erpDbJobsEnv = parseEnv({
   def: envDef,
 });
 
-export const version = erpDbJobsEnv.VERSION;
+export const version =
+  erpDbJobsEnv.VERSION !== 'none' ? erpDbJobsEnv.VERSION : 'none';
 
-export const erpScraperRunTimeK8sEnv = mapEnvToK8sEnv(
+export const erpDbJobsRunTimeK8sEnv = mapEnvToK8sEnv(
   parseEnv({
     data: rawEnv,
     def: envDef,
@@ -72,7 +71,7 @@ export const erpScraperRunTimeK8sEnv = mapEnvToK8sEnv(
   }),
 );
 
-export const erpScraperBuildTimeK8sEnv = mapEnvToK8sEnv(
+export const erpDbJobsBuildTimeK8sEnv = mapEnvToK8sEnv(
   parseEnv({
     data: rawEnv,
     def: envDef,

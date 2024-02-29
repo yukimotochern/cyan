@@ -20,13 +20,14 @@ COPY . .
 RUN pnpm nx run indie-card-game-next:build:production --verbose
 
 FROM ${BASE_IMAGE}
-COPY --from=Build /app/dist/indie-card/game/next/package.json /app/dist/indie-card/game/next/package.json
-COPY --from=Build /app/dist/indie-card/game/next/pnpm-lock.yaml /app/dist/indie-card/game/next/pnpm-lock.yaml
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
 RUN corepack enable
+
+COPY --from=Build /app/dist/indie-card/game/next/package.json /app/dist/indie-card/game/next/package.json
+COPY --from=Build /app/dist/indie-card/game/next/pnpm-lock.yaml /app/dist/indie-card/game/next/pnpm-lock.yaml
 
 WORKDIR /app/dist/indie-card/game/next
 

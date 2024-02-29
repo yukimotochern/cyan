@@ -11,7 +11,6 @@ import {
 } from './env';
 import path from 'path';
 
-console.log('A random change');
 export const dbUrl = `postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DB_NAME}`;
 const connection = postgres(dbUrl, { max: 1 });
 const orm = drizzle(connection);

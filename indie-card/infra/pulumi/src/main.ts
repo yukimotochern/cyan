@@ -8,7 +8,6 @@ import {
   createNameSpace,
   createGithubSecret,
   createPostgresDb,
-  VersionHistory,
 } from '@cyan/utils-infra';
 
 import { createK8sCluster } from './common/cluster/k8s';
@@ -20,7 +19,6 @@ import { createIngressController } from './common/network/ingressController';
 import { createGameIngress } from './services/game/shared/ingress';
 
 import {
-  stack,
   service as infraService,
   pulumiEnv,
   infraEnv,
@@ -34,7 +32,7 @@ import { component as gameNextComponent } from './services/game/next/game-next.e
 import { stackOutputSchema } from './utils/stackOutput';
 import { z } from 'zod';
 
-const stackName = stack.get('stack');
+const stackName = infraService.get('stack');
 const {
   GITHUB_SECRET,
   GITHUB_USERNAME,

@@ -26,7 +26,7 @@ export const createK8sCluster = ({
         nodePool: {
           name: 'default',
           size: 's-2vcpu-2gb', // https://slugs.do-api.dev/
-          nodeCount: 2,
+          nodeCount: 1,
         },
         tags: clusterResource.output('doTags'),
       });

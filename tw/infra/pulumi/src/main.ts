@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import {
   LocalWorkspace,
   PulumiFn,
@@ -11,14 +12,15 @@ import { naming } from '@cyan/utils-naming';
 import {
   createNameSpace,
   createGithubSecret,
-  ImageOutputInfo,
   createPostgresDb,
 } from '@cyan/utils-infra';
 import { service as erpService } from './services/erp/shared/erp.env';
 import { createScraperCronJob } from './services/erp/scraper/scraper';
 import { component as scraperComponent } from './services/erp/scraper/scraper.env';
+import { component as erpDbJobsComponent } from './services/erp/db-jobs/db-jobs.env';
 import { stackOutputSchema } from './utils/stackOutput';
 import { erpDbEnv } from './services/erp/db/db.env';
+import { createErpDbJobs } from './services/erp/db-jobs/db-jobs';
 
 const { GITHUB_REGISTRY, GITHUB_SECRET, GITHUB_USERNAME } = infraEnv;
 
@@ -26,18 +28,18 @@ const { POSTGRES_DB, POSTGRES_PASSWORD, POSTGRES_USER } = erpDbEnv;
 
 const stackName = infraService.get('stack');
 
-const program = (async (info: ImageOutputInfo = []) => {
+const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
   const indieCard = naming
     .organization('Yukimotochern')
     .project('indie-card')
-    .stack(infraService.get('stack'));
+    .stack(stackName);
 
   /* Get kubeconfig */
   const stackRef = new pulumi.StackReference(
     indieCard.output('pulumiStackReference'),
   );
   const kubeconfig = stackRef.getOutput('kubeConfigOutput');
-  const isMinikube = stackRef.getOutput('isMinikube');
+  const isMinikube = await stackRef.getOutputValue('isMinikube');
   const isDnsReady = (await stackRef.getOutputValue('isDnsReady')) as boolean;
   const INDIE_CARD_WEB_HOST_DOMAIN = (await stackRef.getOutputValue(
     'INDIE_CARD_WEB_HOST_DOMAIN',
@@ -51,6 +53,7 @@ const program = (async (info: ImageOutputInfo = []) => {
   );
 
   /* Erp */
+  /* Erp Namespace */
   const { ns: erpNs } = createNameSpace({
     kubProvider,
     namingBuilder: erpService,
@@ -73,7 +76,7 @@ const program = (async (info: ImageOutputInfo = []) => {
     GITHUB_SECRET,
     GITHUB_REGISTRY,
     isMinikube,
-    imageOutputInfo: info,
+    versionHistory: output['tw-erp-scraper']?.value,
   });
 
   /* Erp Db */
@@ -81,6 +84,7 @@ const program = (async (info: ImageOutputInfo = []) => {
     createPostgresDb({
       kubProvider,
       githubSecret: erpGithubSecret,
+      clusterIssuer,
       namespace: erpNs,
       namingBuilder: erpService.component('db'),
       POSTGRES_DB,
@@ -88,10 +92,30 @@ const program = (async (info: ImageOutputInfo = []) => {
       POSTGRES_PASSWORD,
       isDnsReady,
       INDIE_CARD_WEB_HOST_DOMAIN,
-      clusterIssuer,
     });
 
-  return { imageOutputInfo: [...scraperOutput], isMinikube };
+  /* Erp Db Jobs */
+  const { dbJobs, outputInfo: erpDbJobsOutputInfo } = await createErpDbJobs({
+    kubProvider,
+    dbCluster: erpDbCluster,
+    dbServiceName: erpDbServiceName,
+    namespace: erpNs,
+    namingBuilder: erpDbJobsComponent,
+    githubSecret: erpGithubSecret,
+    GITHUB_REGISTRY,
+    GITHUB_SECRET,
+    GITHUB_USERNAME,
+    isMinikube,
+    versionHistory: output['tw-erp-db-jobs']?.value,
+  });
+
+  /* Erp Punch Fastify */
+
+  return {
+    isMinikube,
+    'tw-erp-scraper': scraperOutput,
+    'tw-erp-db-jobs': erpDbJobsOutputInfo,
+  };
 }) satisfies PulumiFn;
 
 const deploy = async () => {
@@ -109,11 +133,10 @@ const deploy = async () => {
   );
   const outputs = await localStack.outputs();
   const result = stackOutputSchema.parse(outputs);
-  const imageOutputInfo = result.imageOutputInfo?.value;
   localStack = await LocalWorkspace.createOrSelectStack(
     {
       ...inlineProgram,
-      program: () => program(imageOutputInfo),
+      program: () => program(result),
     },
     localWorkspaceOptions,
   );
