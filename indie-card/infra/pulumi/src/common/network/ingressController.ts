@@ -32,15 +32,16 @@ export const createIngressController = ({
               ports: {
                 http: 80,
                 https: 443,
-                tcp: 7514,
               },
               targetPorts: {
                 http: 'http',
                 https: 'https',
-                tcp: 'tcp',
               },
             },
           },
+          /**
+           * Expose TCP see https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md
+           */
           tcp: {
             7514: pulumi.interpolate`${gameDbCluster.metadata.namespace}/${gameDbServiceName}:5432`,
           },
