@@ -44,6 +44,7 @@ export const createIngressController = ({
            */
           tcp: {
             7514: pulumi.interpolate`${gameDbCluster.metadata.namespace}/${gameDbServiceName}:5432`,
+            7515: 'tw-dev-erp/tw-dev-erp-db-cluster-rw:5432',
           },
         },
       },
