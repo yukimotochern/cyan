@@ -15,7 +15,9 @@
         "outputPath": "dist/tw/erp/db-jobs",
         "main": "tw/erp/db-jobs/src/main.ts",
         "tsConfig": "tw/erp/db-jobs/tsconfig.app.json",
-        "webpackConfig": "tw/erp/db-jobs/webpack.config.js"
+        "webpackConfig": "tw/erp/db-jobs/webpack.config.js",
+        "assets": ["indie-card/game/db-jobs/src/migrations"],
+        "externalDependencies": "none"
       },
       "configurations": {
         "development": {},

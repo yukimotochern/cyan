@@ -21,8 +21,6 @@ RUN pnpm nx run tw-erp-punch-fastify:build:production --verbose
 
 FROM ${BASE_IMAGE}
 
-RUN timedatectl set-timezone Asia/Taipei
-
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
