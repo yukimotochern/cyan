@@ -26,7 +26,7 @@ export const createScraperCronJob = async ({
   GITHUB_USERNAME: string;
   GITHUB_SECRET: pulumi.Output<string>;
   GITHUB_REGISTRY: string;
-  isMinikube: pulumi.Output<boolean>;
+  isMinikube: boolean;
   versionHistory?: VersionHistory;
 }) => {
   const { versionTagToUse, outputInfo, buildImage } =
@@ -47,7 +47,7 @@ export const createScraperCronJob = async ({
         build: {
           context: '.',
           dockerfile: 'tw/erp/scraper/Dockerfile',
-          platform: isMinikube.apply((val) => (val ? 'local' : 'linux/amd64')),
+          platform: isMinikube ? 'local' : 'linux/amd64',
         },
         imageName: image.output('imageName'),
         registry: {
