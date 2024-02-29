@@ -93,7 +93,7 @@ const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
       POSTGRES_DB,
       POSTGRES_USER,
       POSTGRES_PASSWORD,
-      isDnsReady,
+      isDnsReady: false,
       INDIE_CARD_WEB_HOST_DOMAIN,
     });
 
