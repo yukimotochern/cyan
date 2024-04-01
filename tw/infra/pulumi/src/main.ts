@@ -7,6 +7,7 @@ import {
 } from '@pulumi/pulumi/automation';
 import * as pulumi from '@pulumi/pulumi';
 import * as k8s from '@pulumi/kubernetes';
+import * as digitalocean from '@pulumi/digitalocean';
 import { service as infraService, pulumiEnv, infraEnv } from './env/env';
 import { naming } from '@cyan/utils-naming';
 import {
@@ -41,7 +42,19 @@ const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
   const stackRef = new pulumi.StackReference(
     indieCard.output('pulumiStackReference'),
   );
-  const kubeconfig = stackRef.getOutput('kubeConfigOutput');
+  const k8sProviderName = await stackRef.getOutputValue('k8sProviderName');
+  const k8sClusterName = await stackRef.getOutputValue('k8sClusterName');
+  let kubeconfig: string;
+  if (k8sProviderName === 'doks') {
+    kubeconfig = (
+      await digitalocean.getKubernetesCluster({
+        name: k8sClusterName,
+      })
+    ).kubeConfigs[0].rawConfig;
+  } else {
+    kubeconfig = await stackRef.getOutputValue('kubeConfigOutput');
+  }
+
   const isMinikube = await stackRef.getOutputValue('isMinikube');
   const isDnsReady = (await stackRef.getOutputValue('isDnsReady')) as boolean;
   const INDIE_CARD_WEB_HOST_DOMAIN = (await stackRef.getOutputValue(

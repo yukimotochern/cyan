@@ -15,12 +15,13 @@ export const createK8sCluster = ({
   let cluster: digitalocean.KubernetesCluster | eks.Cluster;
   let kubeConfigOutput: pulumi.Output<string>;
   let kubProvider: pulumi.ProviderResource | undefined;
+  let k8sClusterName: pulumi.Output<string> | undefined;
   const clusterResource = namingBuilder.resource('k8s-cluster');
   const clusterName = clusterResource.output('pulumiResourceName');
 
   switch (K8S_PROVIDER_NAME) {
-    case 'doks':
-      cluster = new digitalocean.KubernetesCluster(clusterName, {
+    case 'doks': {
+      const dgCluster = new digitalocean.KubernetesCluster(clusterName, {
         region: 'sgp1',
         version: '1.29.1-do.0',
         nodePool: {
@@ -30,14 +31,26 @@ export const createK8sCluster = ({
         },
         tags: clusterResource.output('doTags'),
       });
-      kubeConfigOutput = cluster.kubeConfigs[0].rawConfig;
+      kubeConfigOutput = dgCluster.status.apply((status) => {
+        if (status === 'running') {
+          const clusterDataSource = dgCluster.name.apply((name) =>
+            digitalocean.getKubernetesCluster({ name }),
+          );
+          return clusterDataSource.kubeConfigs[0].rawConfig;
+        } else {
+          return dgCluster.kubeConfigs[0].rawConfig;
+        }
+      });
       kubProvider = new k8s.Provider(
         namingBuilder.resource('k8s-provider').output('pulumiResourceName'),
         {
           kubeconfig: kubeConfigOutput,
         },
       );
+      k8sClusterName = dgCluster.name;
+      cluster = dgCluster;
       break;
+    }
     case 'eks':
       cluster = new eks.Cluster(clusterName, {
         instanceType: 't3a.medium',
@@ -65,5 +78,7 @@ export const createK8sCluster = ({
   return {
     kubProvider,
     kubeConfigOutput,
+    k8sProviderName: K8S_PROVIDER_NAME,
+    k8sClusterName,
   };
 };

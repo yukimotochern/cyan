@@ -44,10 +44,11 @@ const { POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD } = gameDbEnv;
 
 const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
   /* Kubernetes Cluster */
-  const { kubProvider, kubeConfigOutput } = createK8sCluster({
-    K8S_PROVIDER_NAME,
-    namingBuilder: infraService,
-  });
+  const { kubProvider, kubeConfigOutput, k8sClusterName, k8sProviderName } =
+    createK8sCluster({
+      K8S_PROVIDER_NAME,
+      namingBuilder: infraService,
+    });
 
   /* CloudNative PG */
   const { cloudNativePgHelmRelease } = installCloudNativePG({
@@ -150,6 +151,8 @@ const program = (async (output: z.infer<typeof stackOutputSchema> = {}) => {
 
   return {
     kubeConfigOutput,
+    k8sClusterName,
+    k8sProviderName,
     'indie-card-game-db-jobs': gameDbJobsOutputInfo,
     'indie-card-game-next': gameNextOutputInfo,
     isMinikube,
