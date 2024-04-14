@@ -12,10 +12,5 @@
   "compilerOptions": {
     "composite": true,
     "jsx": "react-jsx"
-  },
-  "references": [
-    {
-      "path": "../../../utils/naming/tsconfig.lib.json"
-    }
-  ]
+  }
 }
