@@ -145,3 +145,4 @@ export const naming = createNamingBuilder({
   },
 });
 export type GenericNamingBuilder = typeof naming;
+export const hello = (str: string) => str.toUpperCase() + 'jkjk';

@@ -1,0 +1,6 @@
+packages:
+  - "tw/erp/punch-electron"
+  - "tw/**"
+  - "indie-card/**"
+  - "utils/**"
+  - "plugins/**"
