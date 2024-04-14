@@ -12,5 +12,16 @@
     "revparse",
     "tmpfs",
     "zenrows"
-  ]
+  ],
+  "cSpell.ignorePaths": [
+    "node_modules",
+    "vscode-extension",
+    ".git/objects",
+    ".vscode",
+    ".vscode-insiders",
+    "pnpm-lock.yaml",
+    ".nx",
+    "tmp"
+  ],
+  "eslint.experimental.useFlatConfig": true
 }

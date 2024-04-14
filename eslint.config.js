@@ -54,5 +54,5 @@ module.exports = [
     files: ['**/*.js', '**/*.jsx'],
     rules: {},
   })),
-  { ignores: ['dist', 'out'] },
+  { ignores: ['**/dist', '**/out', '**/.next', '**/node_modules', 'tmp'] },
 ];
