@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "indie-card/infra/pulumi/src",
   "projectType": "application",
+  "tags": [],
   "implicitDependencies": ["indie-card-game-next", "indie-card-game-db-jobs"],
   "targets": {
     "build": {
@@ -57,6 +58,5 @@
       "dependsOn": ["build"],
       "command": "docker build -f indie-card/infra/pulumi/Dockerfile . -t indie-card-infra"
     }
-  },
-  "tags": []
+  }
 }

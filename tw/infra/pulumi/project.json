@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "tw/infra/pulumi/src",
   "projectType": "application",
+  "tags": [],
   "implicitDependencies": ["tw-erp-scraper"],
   "targets": {
     "build": {
@@ -46,6 +47,5 @@
     "lint": {
       "executor": "@nx/eslint:lint"
     }
-  },
-  "tags": []
+  }
 }

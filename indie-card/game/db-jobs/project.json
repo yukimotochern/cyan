@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "indie-card/game/db-jobs/src",
   "projectType": "application",
+  "tags": [],
   "implicitDependencies": ["indie-card-game-db"],
   "targets": {
     "build": {
@@ -66,6 +67,5 @@
     "db-push": {
       "command": "drizzle-kit push:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts && nx watch --projects=indie-card-game-db-jobs --verbose --includeDependentProjects -- drizzle-kit push:pg --config=indie-card/game/db-jobs/src/drizzle.config.ts"
     }
-  },
-  "tags": []
+  }
 }

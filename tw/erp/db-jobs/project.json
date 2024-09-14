@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "tw/erp/db-jobs/src",
   "projectType": "application",
+  "tags": [],
   "implicitDependencies": ["tw-erp-db"],
   "targets": {
     "build": {
@@ -60,6 +61,5 @@
     "db-push": {
       "command": "drizzle-kit push:pg --config=tw/erp/db-jobs/src/drizzle.config.ts && nx watch --projects=tw-erp-db-jobs --verbose --includeDependentProjects -- drizzle-kit push:pg --config=tw/erp/db-jobs/src/drizzle.config.ts"
     }
-  },
-  "tags": []
+  }
 }

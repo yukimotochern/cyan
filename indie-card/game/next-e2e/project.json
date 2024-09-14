@@ -2,6 +2,8 @@
   "name": "indie-card-game-next-e2e",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "indie-card/game/next-e2e/src",
+  "tags": [],
+  "implicitDependencies": ["indie-card-game-next"],
   "targets": {
     "e2e": {
       "executor": "@nx/cypress:cypress",
@@ -20,7 +22,5 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
     }
-  },
-  "tags": [],
-  "implicitDependencies": ["indie-card-game-next"]
+  }
 }
